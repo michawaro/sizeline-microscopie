@@ -1,0 +1,2513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Size Line — Échelle de tailles</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3566;--navy2:#2a4d8e;--red:#b52a2a;--red2:#d44;
+  --gold:#e8a020;--green:#1d8a4a;--bg:#f0f3f8;--white:#fff;
+  --text:#1e2533;--muted:#6b7280;--radius:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+html:fullscreen,html:-webkit-full-screen{background:var(--bg);height:100%}
+:fullscreen body,:-webkit-full-screen body{min-height:100%;height:100%}
+
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  color:#fff;padding:18px 28px;display:flex;align-items:center;gap:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.25)
+}
+header svg{width:42px;height:42px;flex-shrink:0}
+header h1{font-family:'Playfair Display',serif;font-size:1.45rem;line-height:1.2}
+header p{font-size:.8rem;opacity:.75;margin-top:3px}
+.badge{background:var(--gold);color:#7a4800;font-size:.7rem;font-weight:600;
+  padding:2px 10px;border-radius:20px;white-space:nowrap;margin-left:auto}
+
+main{padding:12px 18px 8px;width:100%;max-width:none;flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}
+
+.tip{background:#fff;border-left:4px solid var(--navy2);border-radius:0 8px 8px 0;
+  padding:10px 14px;margin-bottom:12px;font-size:.8rem;color:var(--muted);
+  box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tip strong{color:var(--navy)}
+
+.bank-wrap{background:#fff;border-radius:12px;padding:12px 16px 10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;overflow:visible}
+.bank-label{font-size:.78rem;font-weight:600;color:var(--navy);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px}
+.bank-count{background:var(--navy);color:#fff;border-radius:20px;
+  padding:1px 8px;font-size:.7rem}
+#deck{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;
+  border-radius:8px;padding:8px;transition:background .2s;overflow:visible}
+#deck.drag-over{background:#e8f0fb;outline:2px dashed var(--navy2)}
+
+.card{
+  width:118px;border-radius:var(--radius);overflow:visible;cursor:grab;
+  transition:transform .2s ease,box-shadow .2s ease,outline .2s;user-select:none;
+  -webkit-user-select:none;
+  position:relative;flex-shrink:0;border:2px solid var(--navy);background:#fff;
+  transform-origin:center center
+}
+body.phone .card{touch-action:none;-webkit-touch-callout:none;-webkit-user-drag:none}
+.card img{user-select:none}
+body.phone .card img{-webkit-touch-callout:none;-webkit-user-drag:none;pointer-events:none}
+.card.zoomed,.card.hint-open{
+  transform:translate(var(--zx,0px),var(--zy,0px)) scale(var(--zs,2.45));
+  z-index:400;
+  box-shadow:0 18px 44px rgba(26,53,102,.32)
+}
+.drop-zone .card.zoomed,.drop-zone .card.hint-open{z-index:410}
+.activity-clone.zoomed,.activity-cards .card.zoomed,.activity-clone.hint-open,.activity-cards .card.hint-open{z-index:420}
+@media(hover:hover) and (pointer:fine){
+  .card:hover{
+    transform:translate(var(--zx,0px),var(--zy,0px)) scale(var(--zs,2.45));
+    z-index:400;
+    box-shadow:0 18px 44px rgba(26,53,102,.32)
+  }
+  .drop-zone .card:hover{z-index:410}
+  .activity-clone:hover,.activity-cards .card:hover{
+    transform:translate(var(--zx,0px),var(--zy,0px)) scale(var(--zs,2.45));
+    z-index:420;
+    box-shadow:0 18px 44px rgba(26,53,102,.32)
+  }
+  .activity-clone.mark-ok:hover,.activity-cards .card.mark-ok:hover{
+    box-shadow:
+      0 0 0 3px #fff,
+      0 0 0 8px #22c55e,
+      0 0 24px 8px rgba(34,197,94,.6),
+      0 18px 44px rgba(16,185,129,.35)!important
+  }
+  .activity-clone.mark-bad:hover,.activity-cards .card.mark-bad:hover{
+    box-shadow:
+      0 0 0 3px #fff,
+      0 0 0 8px #ef4444,
+      0 0 24px 8px rgba(239,68,68,.6),
+      0 18px 44px rgba(220,38,38,.35)!important
+  }
+}
+.card.grabbing,.card.grabbing:hover,
+.card.dragging,.card.dragging:hover{
+  transform:none!important;z-index:auto;box-shadow:0 8px 18px rgba(26,53,102,.22)
+}
+.card.dragging,.card.dragging:hover{opacity:.35}
+.card-top{color:#fff;font-size:.58rem;font-weight:600;letter-spacing:.4px;
+  text-transform:uppercase;padding:5px 6px;text-align:center;min-height:26px;
+  display:flex;align-items:center;justify-content:center;line-height:1.25;background:var(--navy)}
+.card.size-revealed .card-top,.card.correct .card-top,.card.wrong .card-top,.card.flipped .card-top{
+  text-transform:none;letter-spacing:.15px
+}
+.card img{display:block;background:#dfe6ef}
+.card-body{padding:7px 7px 8px;background:#fff;flex:0 0 auto}
+.card-name{font-size:.62rem;font-weight:600;color:var(--text);line-height:1.22;text-align:center;
+  white-space:normal;overflow:visible;word-break:break-word;hyphens:auto}
+
+.card.markable{outline:none}
+body.activity-on .card.markable,
+.activity-clone.markable{outline:3px solid var(--gold);outline-offset:2px;box-shadow:0 0 0 4px rgba(232,160,32,.28);z-index:2}
+.card.unmarkable{opacity:.72}
+body.activity-on .card.markable.mark-ok,
+.activity-clone.markable.mark-ok,
+.card.mark-ok{
+  outline:none!important;
+  border-color:#0f9d58!important;
+  background:#edfbf3;
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 7px #22c55e,
+    0 0 18px 6px rgba(34,197,94,.55),
+    0 0 42px 12px rgba(16,185,129,.35)!important;
+  animation:haloOk 1.35s ease-in-out 2
+}
+body.activity-on .card.markable.mark-bad,
+.activity-clone.markable.mark-bad,
+.card.mark-bad{
+  outline:none!important;
+  border-color:#dc2626!important;
+  background:#fff1f1;
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 7px #ef4444,
+    0 0 18px 6px rgba(239,68,68,.55),
+    0 0 42px 12px rgba(220,38,38,.38)!important;
+  animation:haloBad 1.35s ease-in-out 2
+}
+@keyframes haloOk{
+  0%,100%{box-shadow:0 0 0 3px #fff,0 0 0 7px #22c55e,0 0 18px 6px rgba(34,197,94,.5),0 0 36px 10px rgba(16,185,129,.28)}
+  50%{box-shadow:0 0 0 4px #fff,0 0 0 10px #16a34a,0 0 28px 10px rgba(34,197,94,.75),0 0 56px 18px rgba(16,185,129,.45)}
+}
+@keyframes haloBad{
+  0%,100%{box-shadow:0 0 0 3px #fff,0 0 0 7px #ef4444,0 0 18px 6px rgba(239,68,68,.5),0 0 36px 10px rgba(220,38,38,.3)}
+  50%{box-shadow:0 0 0 4px #fff,0 0 0 10px #dc2626,0 0 28px 10px rgba(239,68,68,.78),0 0 56px 18px rgba(220,38,38,.48)}
+}
+.mark-chip{
+  width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  font-weight:800;font-size:.85rem;color:#fff;cursor:grab;flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);user-select:none;border:2px solid #fff
+}
+.mark-chip[data-n="1"]{background:#1a3566}
+.mark-chip[data-n="2"]{background:#c47a08}
+.mark-chip[data-n="3"]{background:#1d8a4a}
+.mark-chip.dragging{opacity:.4}
+.card-mark{
+  position:absolute;top:-8px;right:-8px;z-index:4;width:26px;height:26px;
+  border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.75rem;
+  color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:grab
+}
+.card-mark[data-n="1"]{background:#1a3566}
+.card-mark[data-n="2"]{background:#c47a08}
+.card-mark[data-n="3"]{background:#1d8a4a}
+.activity-modal .resume-card,.activity-card{
+  max-width:1080px;max-height:none;overflow:visible;padding:18px 20px 40px
+}
+.activity-modal.activity-modal{align-items:flex-start;padding:28px 20px 40px;overflow:auto}
+.activity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.activity-head h2{font-family:'Playfair Display',serif;color:var(--navy);font-size:1.3rem}
+.activity-cards{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;min-height:80px;overflow:visible;padding:32px 18px 40px}
+.activity-clone{width:108px;cursor:copy;z-index:1}
+.activity-clone .card-photo{height:96px}
+.principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 12px}
+.principle{border:1.5px solid #d5deea;border-radius:10px;padding:10px 12px;background:#f8fafc;display:flex;gap:10px;align-items:flex-start}
+.principle b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;color:#fff;flex:0 0 auto;margin:0}
+.principle[data-n="1"] b{background:#1a3566}
+.principle[data-n="2"] b{background:#c47a08}
+.principle[data-n="3"] b{background:#1d8a4a}
+.principle span{font-size:.78rem;color:var(--muted);line-height:1.35;flex:1}
+.marker-bank{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:40px;
+  padding:8px;border-radius:8px;background:#f3f6fb}
+.marker-bank.drag-over{outline:2px dashed var(--navy2);background:#e8f0fb}
+body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
+
+.mark-chip,.card-mark,.principle b{width:auto;min-width:32px;padding:0 6px;border-radius:8px;font-size:.62rem;letter-spacing:.02em}
+.mark-chip[data-n="4"],.card-mark[data-n="4"]{background:#7a2e6a}
+.principle[data-n="4"] b{background:#7a2e6a}
+.principles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{position:relative}
+.card-visual{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
+.card-photo{position:relative;display:block;width:100%;height:132px;overflow:hidden;line-height:0;background:#dfe6ef}
+.card-photo img,.card-visual img{
+  position:absolute;left:50%;top:36%;width:205%;height:205%;max-width:none;
+  transform:translate(-50%,-50%);object-fit:cover;object-position:center 40%
+}
+.card-scale-mask{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+    linear-gradient(to bottom,transparent 0,transparent 78%,rgba(12,22,40,.45) 90%,rgba(12,22,40,.8) 100%),
+    linear-gradient(to right,transparent 0,transparent 88%,rgba(12,22,40,.28) 100%)
+}
+.card.flipped .card-scale-mask,.card.size-revealed .card-scale-mask{opacity:0}
+.card-verso{
+  display:none;position:absolute;inset:0;
+  background:rgba(12,22,40,.92);color:#fff;padding:8px 9px;z-index:3;overflow:auto
+}
+.card.flipped .card-verso{display:block}
+.card-size{font-weight:800;font-size:.78rem;margin-bottom:6px;color:#f6d58a}
+.card-bar{font-size:.62rem;line-height:1.35;color:#e8eef8}
+.card-hint-btn,.card-flip-btn{
+  position:absolute;z-index:8;width:22px;height:22px;border:none;border-radius:50%;
+  background:rgba(26,53,102,.92);color:#fff;cursor:pointer;font-weight:800;line-height:22px;padding:0;
+  pointer-events:auto
+}
+.card-hint-btn{top:4px;right:4px;font-size:.85rem}
+.card-flip-btn{top:4px;left:4px;right:auto;bottom:auto;font-size:.8rem}
+.card-listen{left:30px;right:auto;bottom:5px}
+#hint-pop{
+  position:fixed;z-index:5000;max-width:260px;background:#fff;border:1.5px solid #d5deea;
+  border-radius:10px;padding:10px 12px;box-shadow:0 10px 28px rgba(15,23,42,.18)
+}
+#hint-pop[hidden]{display:none!important}
+#hint-pop strong{display:block;color:#1a3566;font-size:.78rem;margin-bottom:4px}
+#hint-pop p{margin:0;font-size:.78rem;line-height:1.35;color:#334155}
+.tl-date{white-space:normal;line-height:1.15;font-size:.58rem}
+.drop-zone .card .card-visual{flex:1 1 auto;min-height:0;width:100%;overflow:hidden}
+.drop-zone .card .card-photo{height:100%;width:100%;min-height:0}
+.drop-zone .card .card-photo img,.drop-zone .card .card-visual img{
+  position:absolute;left:50%;top:36%;width:205%;height:205%;max-width:none;
+  transform:translate(-50%,-50%);object-fit:cover;object-position:center 40%
+}
+.card-verso{font-family:'Inter',sans-serif}
+
+@media(max-width:900px){.principles{grid-template-columns:1fr}}
+
+.drop-zone .card.correct,.card.correct{border-color:var(--green)!important;background:#e6f7ee}
+.drop-zone .card.correct .card-top,.card.correct .card-top{background:var(--green)!important}
+.drop-zone .card.wrong,.card.wrong{border-color:var(--red2)!important;background:#fdecea;animation:shake .35s}
+.drop-zone .card.wrong .card-top,.card.wrong .card-top{background:var(--red2)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.tl-wrap{background:#fff;border-radius:12px;padding:12px 10px 8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;overflow:visible;
+  flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.tl-label{font-size:.78rem;font-weight:600;color:var(--navy);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;
+  display:flex;align-items:center;gap:6px}
+.tl-inner{width:100%;min-width:0;position:relative;flex:1;display:flex;flex-direction:column;min-height:0}
+.tl-slots{display:flex;align-items:stretch;gap:0;margin-bottom:0;width:100%;flex:1;min-height:0}
+.tl-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;min-height:0}
+.drop-zone{
+  flex:1;min-height:0;width:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;gap:4px;padding:4px 2px 6px;
+  border-radius:8px 8px 0 0;border:2px dashed transparent;
+  transition:background .15s,border-color .15s;position:relative;overflow:visible
+}
+.tl-col,.tl-slots{overflow:visible}
+.drop-zone.drag-over{background:#e8f0fb;border-color:var(--navy2)}
+.drop-zone .card{width:min(100%,118px);flex:1 1 0;min-height:0;max-height:100%;display:flex;flex-direction:column}
+.drop-zone .card-top{min-height:22px;flex:0 0 auto;padding:4px 4px;font-size:.55rem}
+.drop-zone .card-body{flex:0 0 auto}
+.drop-zone .card-name{font-size:.58rem;line-height:1.18}
+.tl-axis{display:flex;align-items:center;position:relative;height:22px}
+.tl-axis-line{position:absolute;left:0;right:0;top:50%;height:4px;
+  background:linear-gradient(90deg,var(--navy) 0%,var(--navy2) 100%);border-radius:2px;
+  transform:translateY(-50%)}
+.tl-tick-row{display:flex;position:relative;z-index:1;width:100%}
+.tl-tick-col{flex:1 1 0;min-width:0;display:flex;justify-content:center}
+.tl-tick{width:2px;height:14px;background:var(--navy)}
+.tl-dates{display:flex;margin-top:4px;width:100%}
+.tl-date-col{flex:1 1 0;min-width:0;text-align:center}
+.tl-date{font-size:.62rem;font-weight:700;color:var(--navy);white-space:nowrap}
+.tl-date.neg{color:var(--red)}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{padding:10px 22px;border:none;border-radius:8px;font-size:.88rem;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg);color:var(--text);border:1.5px solid #d1d5db}
+.btn-audio[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.card-listen{
+  display:none;position:absolute;left:5px;bottom:5px;z-index:5;
+  width:22px;height:22px;border:none;border-radius:50%;
+  background:rgba(26,53,102,.9);color:#fff;cursor:pointer;padding:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.25)
+}
+.card-listen svg{width:12px;height:12px;display:block;margin:auto}
+body.audio-desc .card-listen{display:grid;place-items:center}
+body.audio-desc .card{cursor:pointer}
+body.audio-desc .tl-date-col{cursor:pointer}
+.card.drag-ghost{position:fixed;left:0;top:0;z-index:200;pointer-events:none;margin:0;
+  box-shadow:0 14px 28px rgba(26,53,102,.38);will-change:transform}
+.card.ptr-hold{visibility:hidden}
+.card.correct,.card.locked{cursor:default}
+.print-copy .card-listen{display:none!important}
+.hint-count{background:#fff;border:1.5px solid #c5d0e0;color:var(--navy);padding:10px 16px;border-radius:8px;
+  font-size:.82rem;font-weight:600;margin-left:auto;white-space:nowrap}
+.score{background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;
+  font-size:.88rem;font-weight:600;margin-left:0}
+
+.message{margin-top:14px;padding:12px 16px;border-radius:10px;background:#fff;
+  border:1px solid #dbe5f1;color:#334155;display:none;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.message.show{display:block}
+.solution{margin-top:14px;padding:14px 18px;background:#fff;border-radius:12px;display:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.solution.show{display:block}
+.solution ol{columns:2;line-height:1.75}
+@media(max-width:700px){.solution ol{columns:1}.tl-wrap{overflow-x:auto}}
+.rotate-tip{display:none;position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1a3566,#2a4d8e);
+  color:#fff;align-items:center;justify-content:center;text-align:center;padding:28px;font-size:1.15rem;line-height:1.45}
+.phone-nav{display:none;align-items:center;gap:6px;flex-wrap:wrap;padding:0 6px 4px}
+.phone-nav .btn{padding:6px 10px;font-size:.75rem}
+.btn-icon{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:6px 8px}
+.btn-icon svg{width:17px;height:17px;display:block;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn-icon:disabled{opacity:.42}
+.phone-pos{font-size:.75rem;font-weight:700;color:var(--navy);min-width:3.4em;text-align:center}
+.phone-hint{display:none;font-size:.68rem;font-weight:500;color:var(--muted);line-height:1.25;max-width:16em}
+.phone-park{display:none}
+body.phone .phone-nav{display:flex}
+body.phone .tip,body.phone .message{display:none}
+body.phone header{padding:4px 8px}
+body.phone header p,body.phone header .badge{display:none}
+body.phone header h1{font-size:.95rem}
+body.phone header svg{width:24px;height:24px}
+body.phone main{padding:4px 0;gap:4px}
+body.phone header{padding-left:8px;padding-right:8px}
+body.phone:not(.phone-all) .bank-wrap{display:none}
+body.phone.phone-all .bank-wrap{display:block;margin-bottom:4px;padding:6px 8px}
+body.phone.phone-all #deck{max-height:36vh;overflow:auto}
+body.phone.phone-all .phone-park,body.phone.phone-all .tl-wrap{display:none}
+body.phone:not(.phone-all) .phone-park{display:flex}
+body.phone .phone-hint{display:inline}
+body.phone .card-body,body.phone .drop-zone .card-body{display:none}
+body.phone .card.phone-current,body.phone .card.phone-selected{box-shadow:0 0 0 3px rgba(232,160,32,.45)}
+body.phone .tl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;margin-bottom:4px;padding:4px 0 2px}
+body.phone .tl-inner{min-width:0;width:max-content;flex:1}
+body.phone .tl-slots{flex:1}
+body.phone .tl-col,body.phone .tl-tick-col,body.phone .tl-date-col{
+  flex:0 0 112px;min-width:112px;max-width:112px
+}
+body.phone .tl-date{font-size:.5rem}
+body.phone .tl-label{margin-bottom:4px;gap:8px;padding:0 6px}
+body.phone .tl-label>svg,body.phone .tl-caption{display:none}
+body.phone .drop-zone{min-height:0;padding:0;gap:0;align-items:stretch;justify-content:stretch;border-radius:0}
+body.phone .drop-zone .card,body.phone #phone-park .card{
+  width:100%!important;max-width:none!important;flex:1 1 auto;height:100%;margin:0
+}
+body.phone .drop-zone .card .card-photo,body.phone #phone-park .card .card-photo{height:100%}
+body.phone .drop-zone .card-top{display:none}
+body.phone #phone-park{outline:2px dashed var(--gold);background:#fff8e8}
+body.phone .drop-zone.phone-target:not(#phone-park){background:#e8f0fb;border-color:var(--navy2)}
+body.phone .tl-date-col{cursor:pointer;padding:4px 0 2px}
+body.phone .phone-park .tl-date{color:var(--gold)}
+body.phone .controls{gap:6px;padding:0 6px}
+body.phone .controls .btn{padding:6px 9px;font-size:.7rem}
+body.phone .hint-count,body.phone .score{padding:6px 9px;font-size:.7rem;margin-left:0}
+.print-copy .phone-park{display:none!important}
+@media (orientation:portrait) and (pointer:coarse),
+       (orientation:portrait) and (max-width:1180px){
+  .rotate-tip{display:flex}
+  header,main{visibility:hidden}
+}
+body.game-on:not(.game-play) .rotate-tip{display:none!important}
+body.game-on:not(.game-play) header,body.game-on:not(.game-play) main{visibility:hidden}
+.game-overlay{display:none;position:fixed;inset:0;z-index:85;background:var(--bg);flex-direction:column;overflow:auto}
+body.game-on:not(.game-play) .game-overlay{display:flex}
+body.game-play .game-overlay{display:none!important}
+.game-turn{display:none;font-size:.72rem;font-weight:700;color:var(--navy);background:#fff8e8;border:1px solid var(--gold);border-radius:999px;padding:3px 10px;line-height:1.2;max-width:16em}
+body.game-play .game-turn{display:inline-flex}
+.game-turn.wait{background:#f0f3f8;border-color:#c5d0e0;color:var(--muted)}
+.game-turn.miss{background:#fdecea;border-color:#d44;color:#9b1c1c}
+.game-turn.ready{background:#e8f8ee;border-color:#6bc48a;color:#166534}
+header .game-turn.ready{color:#ecfdf3;background:rgba(143,212,168,.3);border-color:#8fd4a8}
+body.game-play .tip,body.game-play #check,body.game-play #shuffle,body.game-play #hint,body.game-play #reset,body.game-play #printTl,body.game-play #openActivity,body.game-play #openGame,body.game-play .score,body.game-play .hint-count,body.game-play .phone-hint{display:none!important}
+body.game-play:not(.phone) #toggleBank{display:none!important}
+body.phone.game-play:not(.phone-all) .bank-wrap{display:none!important}
+body.phone.game-play.phone-all .bank-wrap{display:block!important}
+.phone-cycle{display:none;align-items:center;justify-content:center;gap:6px;width:100%;padding:2px 0 6px;flex:0 0 auto}
+body.phone:not(.phone-all) .phone-cycle{display:flex}
+body.phone:not(.phone-all) .phone-cycle .btn{padding:4px 8px;font-size:.72rem}
+.game-opp-mini{display:none;position:fixed;top:76px;right:16px;z-index:40;width:78px;flex-direction:column;align-items:center;gap:4px;padding:6px;background:#fff;border:2px solid var(--navy);border-radius:10px;box-shadow:0 4px 14px rgba(26,53,102,.2);pointer-events:none}
+body.game-play .game-opp-mini.show{display:flex}
+body.phone .game-opp-mini{top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right))}
+.game-opp-mini span{font-size:.58rem;font-weight:700;color:var(--navy);text-align:center;line-height:1.2;text-transform:uppercase;letter-spacing:.3px}
+.game-opp-mini img{width:100%;height:64px;object-fit:contain;background:#f4f4f4;border-radius:6px}
+.card.game-ghost{opacity:.42;pointer-events:none;outline:2px dashed var(--gold);outline-offset:2px}
+body.game-play #game-quit-play{display:inline-flex!important}
+.card.game-hidden{display:none!important}
+.js-validate{display:none;background:#8fd4a8;color:#14532d;border:1.5px solid #6bc48a}
+.js-validate:hover:not(:disabled){background:#74c994;transform:translateY(-1px)}
+.js-validate.ready{
+  animation:validatePulse 1.15s ease-in-out infinite;
+  box-shadow:0 0 0 3px #fff,0 0 0 7px #8fd4a8,0 0 18px 4px rgba(109,196,140,.55)
+}
+@keyframes validatePulse{
+  0%,100%{box-shadow:0 0 0 3px #fff,0 0 0 7px #8fd4a8,0 0 14px 3px rgba(109,196,140,.4)}
+  50%{box-shadow:0 0 0 4px #fff,0 0 0 10px #b6ebc8,0 0 24px 6px rgba(109,196,140,.7)}
+}
+body.game-play .js-validate{display:inline-flex!important}
+header .game-turn{color:#fff;background:rgba(255,248,232,.18);border-color:var(--gold)}
+body.phone.game-play header .game-turn{display:none!important}
+.card.game-start{box-shadow:0 0 0 3px #fff,0 0 0 8px #64748b!important;outline:3px solid #475569;outline-offset:2px}
+.card.game-p0{box-shadow:0 0 0 3px #fff,0 0 0 9px #e07a1f,0 0 18px 3px rgba(224,122,31,.55)!important;outline:3px solid #e07a1f;outline-offset:2px}
+.card.game-p1{box-shadow:0 0 0 3px #fff,0 0 0 9px #2b7de9,0 0 18px 3px rgba(43,125,233,.55)!important;outline:3px solid #2b7de9;outline-offset:2px}
+.card.game-p2{box-shadow:0 0 0 3px #fff,0 0 0 9px #1aa35a,0 0 18px 3px rgba(26,163,90,.5)!important;outline:3px solid #1aa35a;outline-offset:2px}
+.card.game-p3{box-shadow:0 0 0 3px #fff,0 0 0 9px #8b5cf6,0 0 18px 3px rgba(139,92,246,.5)!important;outline:3px solid #8b5cf6;outline-offset:2px}
+.card.game-p4{box-shadow:0 0 0 3px #fff,0 0 0 9px #dc3d3d,0 0 18px 3px rgba(220,61,61,.5)!important;outline:3px solid #dc3d3d;outline-offset:2px}
+.card.game-p5{box-shadow:0 0 0 3px #fff,0 0 0 9px #0d9488,0 0 18px 3px rgba(13,148,136,.5)!important;outline:3px solid #0d9488;outline-offset:2px}
+body.game-play:not(.phone) .card-top,
+body.game-play:not(.phone) .card-body{display:none}
+body.game-play:not(.phone) #deck .card{width:189px}
+body.game-play:not(.phone) #deck .card .card-photo{height:192px}
+body.game-play:not(.phone) .drop-zone:not(#phone-park){padding:0;gap:0;justify-content:flex-end}
+body.game-play:not(.phone) .drop-zone:not(#phone-park) .card,
+body.game-play:not(.phone) .drop-zone:not(#phone-park) .card.game-ghost{
+  width:100%!important;max-width:none;flex:0 0 auto;height:auto;max-height:none;margin:0
+}
+body.game-play:not(.phone) .drop-zone:not(#phone-park) .card .card-photo,
+body.game-play:not(.phone) .drop-zone:not(#phone-park) .card.game-ghost .card-photo{
+  height:120px
+}
+body.game-play .drop-zone .card.game-p0,
+body.game-play .drop-zone .card.game-p1,
+body.game-play .drop-zone .card.game-p2,
+body.game-play .drop-zone .card.game-p3,
+body.game-play .drop-zone .card.game-p4,
+body.game-play .drop-zone .card.game-p5,
+body.game-play .drop-zone .card.game-start{z-index:3}
+.game-bar{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.game-bar h2{font-family:'Playfair Display',serif;font-size:1.15rem}
+.game-code-big{font-size:2.4rem;letter-spacing:.28em;font-weight:800}
+.game-lobby{max-width:520px;margin:28px auto;padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.game-board{display:none;flex:1;flex-direction:column;min-height:0;padding:10px 12px 12px;gap:10px}
+.game-board.show{display:flex}
+.game-status{background:#fff;border-radius:10px;padding:8px 12px;font-size:.88rem;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.game-center{background:#fff;border-radius:12px;padding:10px;overflow-x:auto;flex:1;min-height:140px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.game-row{display:flex;align-items:stretch;gap:6px;min-height:120px}
+.game-slot{min-width:28px;border:2px dashed #c5d0e0;border-radius:8px;background:#f8fafc;cursor:pointer;align-self:stretch}
+.game-slot.on{border-color:var(--gold);background:#fff8e8}
+.gcard{width:110px;flex-shrink:0;border:2px solid var(--navy);border-radius:10px;background:#fff;overflow:hidden;cursor:pointer}
+.gcard img{width:100%;height:88px;object-fit:contain;background:#f4f4f4;display:block}
+.gcard .gy{font-size:.68rem;font-weight:700;text-align:center;padding:4px;color:var(--navy)}
+.gcard.sel{outline:3px solid var(--gold)}
+.gback{width:52px;height:72px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));flex-shrink:0}
+.game-hands{display:flex;flex-wrap:wrap;gap:10px}
+.game-hand{background:#fff;border-radius:12px;padding:8px 10px;flex:1;min-width:240px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.game-hand h3{font-size:.78rem;color:var(--navy);margin-bottom:6px}
+.game-mine{display:flex;gap:6px;overflow-x:auto}
+#game-join-code,#game-share{padding:10px 12px;border:1.5px solid #c5d0e0;border-radius:8px;font-size:1.05rem}
+#game-join-code{letter-spacing:.2em;text-transform:uppercase;width:140px;font-weight:700}
+#game-share{width:100%}
+.game-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin:12px 0 4px}
+#game-qr{display:flex;align-items:center;justify-content:center;width:184px;height:184px;background:#fff;padding:8px;border-radius:12px;border:2px solid #d5deea}
+#game-qr img,#game-qr canvas{display:block;width:168px;height:168px}
+.game-qr-hint{font-size:.82rem;color:var(--muted);text-align:center;max-width:22em}
+.game-seat-pick{display:flex;flex-wrap:wrap;gap:6px}
+.game-seat-pick .btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.game-opps{display:flex;flex-wrap:wrap;gap:10px;flex:1;min-width:240px}
+.game-opps .game-hand{min-width:160px}
+.game-end{display:none;background:#fff8e8;border:2px solid var(--gold);border-radius:12px;padding:12px 14px;color:var(--navy);line-height:1.45;font-size:1rem}
+.game-end.show{display:block}
+.game-end strong{font-size:1.05rem}
+@media(pointer:coarse){
+  .game-board{padding:8px 0 8px;gap:8px}
+  .game-status,.game-end{margin:0 8px}
+  .game-center{padding:0;border-radius:0;flex:1;min-height:0}
+  .game-row{align-items:stretch;gap:4px;min-height:0;height:100%}
+  .gcard{width:112px;height:100%;display:flex;flex-direction:column;margin:0}
+  .gcard img{flex:1 1 auto;height:auto;min-height:0;object-fit:contain}
+  .game-hands{padding:0 8px}
+  .game-mine{gap:4px}
+}
+.resume-modal{
+  display:none;position:fixed;inset:0;z-index:80;background:rgba(16,28,52,.55);
+  align-items:center;justify-content:center;padding:20px
+}
+.resume-modal.show{display:flex}
+.resume-card{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:22px 24px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.resume-card h2{font-family:'Playfair Display',serif;color:var(--navy);font-size:1.35rem;margin-bottom:8px}
+.resume-card p{color:var(--muted);font-size:.9rem;line-height:1.45;margin-bottom:16px}
+.resume-card .controls{justify-content:flex-end}
+@media print{.resume-modal,.activity-modal{display:none!important}}
+.print-sheet{display:none}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  html,body{background:#fff!important;height:auto}
+  body.printing>*:not(.print-sheet){display:none!important}
+  .print-sheet{display:flex!important;flex-direction:column;justify-content:space-between;gap:6mm;height:100%;min-height:180mm}
+  .print-title{font-family:'Playfair Display',serif;font-size:16pt;color:#1a3566;text-align:center;
+    margin:0 0 3mm;font-weight:700;flex:0 0 auto;letter-spacing:.2px}
+  .print-copy{flex:1 1 0;border:1px dashed #9aa8bc;border-radius:8px;padding:5mm 7mm 4mm;overflow:hidden;page-break-inside:avoid}
+  .print-copy .tl-inner{width:100%}
+  .print-copy .drop-zone{min-height:28mm;border:1.5px dashed #c5cedb;background:#fafbfd;overflow:visible}
+  .print-copy .card{display:none!important}
+  .print-copy .card.print-placed{
+    display:flex!important;flex-direction:column;width:min(100%,78px);max-height:32mm;
+    animation:none!important;box-shadow:none!important;outline:none!important;
+    background:#fff!important;border:1.6px solid #1d8a4a!important;overflow:hidden;
+    transform:none!important
+  }
+  .print-copy .card.print-placed .card-photo{height:16mm;overflow:hidden;position:relative}
+  .print-copy .card.print-placed .card-photo img{
+    position:absolute;left:50%;top:36%;width:205%;height:205%;max-width:none;max-height:none;
+    transform:translate(-50%,-50%);object-fit:cover
+  }
+  .print-copy .card.print-placed .card-top{min-height:12px;font-size:6.5pt;padding:2px;text-transform:none}
+  .print-copy .card.print-placed .card-name{font-size:6.5pt;line-height:1.2}
+  .print-copy .card-hint-btn,.print-copy .card-flip-btn,.print-copy .card-listen,
+  .print-copy .card-scale-mask,.print-copy .card-verso{display:none!important}
+  .print-copy .card-mark{
+    position:absolute;top:-3mm;right:-2mm;width:7mm;height:7mm;font-size:7pt;
+    cursor:default;print-color-adjust:exact;-webkit-print-color-adjust:exact
+  }
+  .print-copy .tl-date{font-size:8pt;text-transform:none}
+  .print-copy .phone-park{display:none!important}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div id="resume-modal" class="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-title">
+  <div class="resume-card">
+    <h2 id="resume-title">Travail en cours</h2>
+    <p>La page a été actualisée. Tu peux reprendre là où tu t’étais arrêté, ou tout effacer et recommencer à zéro.</p>
+    <div class="controls">
+      <button class="btn btn-primary" id="resumeKeep" type="button">Garder le travail</button>
+      <button class="btn btn-secondary" id="resumeReset" type="button">Tout recommencer</button>
+    </div>
+  </div>
+</div>
+<div id="activity-modal" class="resume-modal activity-modal" role="dialog" aria-modal="true" aria-labelledby="activity-title">
+  <div class="resume-card activity-card">
+    <div class="activity-head">
+      <div>
+        <h2 id="activity-title">Types de microscopie</h2>
+        <p style="color:var(--muted);font-size:.88rem;line-height:1.4;margin-top:4px">Glisse sur chaque carte la vignette du type de microscope utilisé pour l’image. MO = optique classique, HR = optique à haute résolution, MET = électronique à transmission, MEB = électronique à balayage.</p>
+      </div>
+      <button class="btn btn-secondary" id="closeActivity" type="button">Fermer</button>
+    </div>
+    <div class="principles">
+      <div class="principle" data-n="1"><b>MO</b><span>Microscopie optique classique.</span></div>
+      <div class="principle" data-n="2"><b>HR</b><span>Microscopie optique à haute résolution.</span></div>
+      <div class="principle" data-n="3"><b>MET</b><span>Microscopie électronique à transmission.</span></div>
+      <div class="principle" data-n="4"><b>MEB</b><span>Microscopie électronique à balayage.</span></div>
+    </div>
+    <div class="bank-label" style="margin-bottom:8px">Vignettes à placer <span class="bank-count" id="mark-count">0</span></div>
+    <div class="marker-bank" id="marker-bank"></div>
+    <div class="activity-cards" id="activity-cards"></div>
+    <div class="controls" style="margin-top:12px">
+      <button class="btn btn-primary" id="checkMarks" type="button">Vérifier les microscopes</button>
+      <button class="btn btn-secondary" id="hintMarks" type="button">Indice microscope</button>
+      <div class="hint-count" id="hintCountModal" style="margin-left:0">Indices : 0 (échelle 0 · microscopes 0)</div>
+    </div>
+    <p class="message" id="activity-msg"></p>
+  </div>
+</div>
+<div class="game-overlay" id="game-overlay">
+  <div class="game-bar">
+    <h2>Size Line en réseau</h2>
+    <strong id="game-code-live"></strong>
+    <button class="btn btn-secondary" id="game-close" type="button">Quitter</button>
+  </div>
+  <div class="game-lobby" id="game-lobby">
+    <p>2 à 6 joueurs. Une carte est déjà au centre. À ton tour, choisis une carte (taille cachée) puis touche l’emplacement. Les objets d’un même intervalle sont considérés comme égaux. Juste : tu t’en débarrasses. Faux : la carte retourne à la pioche. Le premier à 0 cartes gagne.</p>
+    <p>Nombre de joueurs (l’hôte choisit) :</p>
+    <div class="game-seat-pick" id="game-seat-pick">
+      <button class="btn btn-secondary on" type="button" data-n="2">2 · 5 cartes</button>
+      <button class="btn btn-secondary" type="button" data-n="3">3 · 5 cartes</button>
+      <button class="btn btn-secondary" type="button" data-n="4">4 · 5 cartes</button>
+      <button class="btn btn-secondary" type="button" data-n="5">5 · 4 cartes</button>
+      <button class="btn btn-secondary" type="button" data-n="6">6 · 3 cartes</button>
+    </div>
+    <button class="btn btn-primary" id="game-create" type="button">Créer une partie (tu es l’hôte)</button>
+    <div id="game-host-block" style="display:none">
+      <p>Donne ce code, le lien, ou le QR code aux autres :</p>
+      <div class="game-code-big" id="game-code-big"></div>
+      <div class="game-qr-wrap">
+        <div id="game-qr" role="img" aria-label="QR code pour rejoindre la partie"></div>
+        <p class="game-qr-hint">Scanner ce QR ouvre la partie sur le téléphone.</p>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="game-copy" type="button">Copier le code</button>
+        <button class="btn btn-secondary" id="game-copy-link" type="button">Copier le lien</button>
+      </div>
+      <input id="game-share" readonly aria-label="Lien de la partie">
+      <p id="game-wait" style="margin-top:8px"></p>
+      <button class="btn btn-primary" id="game-start-now" type="button" style="display:none">Commencer maintenant</button>
+    </div>
+    <p>Ou rejoins une partie avec le code, le lien, ou le QR code de l’hôte :</p>
+    <div class="controls">
+      <input id="game-join-code" maxlength="4" placeholder="CODE" autocomplete="off" aria-label="Code de la partie">
+      <button class="btn btn-primary" id="game-join" type="button">Rejoindre</button>
+      <button class="btn btn-secondary" id="game-scan-qr" type="button">Scanner un QR</button>
+      <input id="game-qr-file" type="file" accept="image/*" capture="environment" hidden>
+    </div>
+    <p id="game-join-wait"></p>
+  </div>
+  <div class="game-board" id="game-board">
+    <div class="game-status" id="game-status"></div>
+    <div class="game-end" id="game-end"></div>
+    <div class="game-center"><div class="game-row" id="game-row"></div></div>
+    <div class="game-hands">
+      <div class="game-hand">
+        <h3>Tes cartes (taille cachée)</h3>
+        <div class="game-mine" id="game-mine"></div>
+      </div>
+      <div class="game-opps" id="game-opps"></div>
+    </div>
+  </div>
+</div>
+<header>
+  <svg viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="21" cy="21" r="20" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <rect x="18" y="6" width="6" height="18" rx="3" fill="rgba(255,255,255,.9)"/>
+    <rect x="18" y="28" width="6" height="8" rx="3" fill="rgba(255,255,255,.6)"/>
+    <circle cx="21" cy="21" r="3" fill="#e8a020"/>
+  </svg>
+  <div>
+    <h1>Size Line — Échelle de tailles</h1>
+    <p>Classe les objets du plus petit au plus grand, par intervalles</p>
+  </div>
+  <span class="badge">SVT · 1ère ESc</span>
+  <span class="game-turn js-game-turn" hidden></span>
+</header>
+
+<div class="rotate-tip" id="rotate-tip">Tourne ton téléphone ou ta tablette <strong>en paysage</strong> pour voir la frise et placer les cartes.</div>
+<main>
+  <div class="tip">
+    <strong>Comment jouer :</strong> Place chaque carte sur l’échelle, du plus petit au plus grand. Les objets d’un même intervalle sont considérés comme égaux : pas besoin d’un classement au nanomètre près. Les tailles précises et les barres d’échelle restent masquées jusqu’à la correction ou au retournement de la carte. Le <strong>?</strong> donne un repère biologique (virus, bactérie, cellule…). L’activité microscopes s’ouvre avec le bouton dédié.
+  </div>
+
+  <div class="bank-wrap">
+    <div class="bank-label">
+      Cartes à placer <span class="bank-count" id="bank-count">0</span>
+    </div>
+    <div id="deck"></div>
+  </div>
+
+  <div class="game-opp-mini" id="game-opp-mini" hidden>
+    <span>Carte adverse</span>
+    <img alt="">
+  </div>
+  <div class="phone-nav" id="phone-nav">
+    <button class="btn btn-secondary btn-icon js-undo" type="button" disabled aria-label="Annuler" title="Annuler (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a6 6 0 0 1 0 12h-3"/></svg></button>
+    <button class="btn btn-secondary btn-icon js-redo" type="button" disabled aria-label="Rétablir" title="Rétablir (Ctrl+Y)"><svg viewBox="0 0 24 24"><path d="M15 14 20 9l-5-5"/><path d="M20 9H9a6 6 0 0 0 0 12h3"/></svg></button>
+    <button class="btn btn-primary btn-icon js-validate" type="button" disabled aria-label="Valider" title="Valider le placement"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+    <span class="game-turn js-game-turn" hidden></span>
+    <span class="phone-hint">Glisse la carte ou touche un intervalle</span>
+    <button class="btn btn-secondary" id="toggleBank" type="button">Toutes les cartes</button>
+  </div>
+  <div class="phone-cycle" id="phone-cycle">
+    <button class="btn btn-secondary" id="cardPrev" type="button" aria-label="Carte précédente">◀</button>
+    <span class="phone-pos" id="phone-pos">0 / 0</span>
+    <button class="btn btn-secondary" id="cardNext" type="button" aria-label="Carte suivante">▶</button>
+  </div>
+  <div class="tl-wrap">
+    <div class="tl-label">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a3566" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+      <span class="tl-caption">Échelle de tailles (petit → grand)</span>
+    </div>
+    <div class="tl-inner">
+      <div class="tl-slots" id="tl-slots"></div>
+      <div class="tl-axis">
+        <div class="tl-axis-line"></div>
+        <div class="tl-tick-row" id="tl-ticks"></div>
+      </div>
+      <div class="tl-dates" id="tl-dates"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-secondary btn-icon js-undo" type="button" disabled aria-label="Annuler" title="Annuler (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a6 6 0 0 1 0 12h-3"/></svg></button>
+    <button class="btn btn-secondary btn-icon js-redo" type="button" disabled aria-label="Rétablir" title="Rétablir (Ctrl+Y)"><svg viewBox="0 0 24 24"><path d="M15 14 20 9l-5-5"/><path d="M20 9H9a6 6 0 0 0 0 12h3"/></svg></button>
+    <button class="btn btn-primary btn-icon js-validate" type="button" disabled aria-label="Valider" title="Valider le placement" style="display:none"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+    <button class="btn btn-secondary" id="game-quit-play" type="button" style="display:none">Quitter le jeu</button>
+    <button class="btn btn-primary" id="check">Vérifier mes réponses</button>
+    <button class="btn btn-secondary" id="shuffle">Mélanger</button>
+    <button class="btn btn-secondary" id="hint">Indice</button>
+    <button class="btn btn-secondary" id="reset">Recommencer</button>
+    <button class="btn btn-secondary" id="printTl" type="button">Imprimer mes réponses</button>
+    <button class="btn btn-secondary btn-audio" id="audioDesc" type="button" aria-pressed="false" title="Activer la description audio des cartes">Description audio</button>
+    <button class="btn btn-primary" id="openActivity" type="button">Types de microscopie</button>
+    <button class="btn btn-primary" id="openGame" type="button">Mode jeu</button>
+    <div class="hint-count" id="hintCount">Indices : 0 (échelle 0 · microscopes 0)</div>
+    <div class="score" id="score">0 / 0</div>
+  </div>
+  <p class="message" id="msg"></p>
+  <div class="solution" id="solution"><h2>Correction</h2><ol id="solList"></ol></div>
+</main>
+
+<script>
+const events=[{"id":"spv3","date":100,"label":"Virus archéen SPV3","img":"cartes/01_virus_arch_en_spv3.webp","sizeUm":0.08,"sizeLabel":"80 nm","micro":3,"hint":"Virus, plus petit qu’une bactérie : objet subcellulaire rond.","scaleHint":"Un virion rond mesure un peu moins que la barre de 100 nm."},{"id":"his1","date":100,"label":"Virus archéen His1","img":"cartes/02_virus_arch_en_his1.webp","sizeUm":0.15,"sizeLabel":"150 nm","micro":3,"hint":"Virus allongé, trop petit pour le microscope optique classique.","scaleHint":"Mesurer la longueur d’un virion fusiforme isolé, à gauche."},{"id":"t2","date":300,"label":"Bactériophage T2","img":"cartes/03_bact_riophage_t2.webp","sizeUm":0.22,"sizeLabel":"220 nm","micro":3,"hint":"Virus qui infecte une bactérie : tête et queue.","scaleHint":"Compter la tête et la queue, soit un peu plus de deux barres de 100 nm."},{"id":"tetv","date":300,"label":"Virus géant TetV","img":"cartes/04_virus_g_ant_tetv.webp","sizeUm":0.3,"sizeLabel":"300 nm","micro":3,"hint":"Très gros virus, encore plus petit qu’une cellule.","scaleHint":"Mesurer le virion dans la petite vignette, pas la grande cellule hôte."},{"id":"meningo","date":1000,"label":"Méningocoque","img":"cartes/05_m_ningocoque_et_pili.webp","sizeUm":0.8,"sizeLabel":"0,8 µm","micro":4,"hint":"Bactérie ronde, de l’ordre du micromètre.","scaleHint":"Le corps bleu est plus petit que la barre de 1 µm ; écarter les pili jaunes."},{"id":"nitrat","date":1000,"label":"Bactérie Nitratidesulfovibrio","img":"cartes/06_bact_rie_nitratidesulfovibrio.webp","sizeUm":1.7,"sizeLabel":"1,7 µm","micro":3,"hint":"Bactérie en bâtonnet, un peu plus grande qu’un micromètre.","scaleHint":"Le bacille sombre mesure environ 3 à 4 barres de 0,5 µm, sans son flagelle."},{"id":"pirsonia","date":3000,"label":"Parasite Pirsonia","img":"cartes/07_diatom_e_et_parasite_pirsonia.webp","sizeUm":2.7,"sizeLabel":"2,7 µm","micro":4,"hint":"Petit eucaryote parasite, plus gros qu’une bactérie typique.","scaleHint":"Mesurer l’objet rond au centre droit, pas la diatomée sur laquelle il se trouve."},{"id":"uabi","date":3000,"label":"Bactérie Uabimicrobium","img":"cartes/08_bact_rie_uabimicrobium.webp","sizeUm":3,"sizeLabel":"3 µm","micro":3,"hint":"Bactérie relativement grande, encore bien plus petite qu’une cellule humaine.","scaleHint":"Son corps cellulaire occupe environ trois barres de 1 µm."},{"id":"idioma","date":3000,"label":"Bactérie Idiomarina","img":"cartes/09_bact_rie_idiomarina.webp","sizeUm":3.5,"sizeLabel":"3,5 µm","micro":3,"hint":"Bactérie en bâtonnet, taille d’une petite cellule.","scaleHint":"Choisir un bacille du groupe central et ignorer les longs flagelles."},{"id":"chlorella","date":3000,"label":"Chlorella","img":"cartes/10_chlorella_et_bact_rie_parasite.webp","sizeUm":4,"sizeLabel":"4 µm","micro":4,"hint":"Petite algue unicellulaire verte.","scaleHint":"Mesurer une grosse cellule ronde ; la petite bactérie indiquée par la flèche est un autre objet."},{"id":"champignon","date":7000,"label":"Champignon sur un poil","img":"cartes/11_champignon_sur_un_poil_de_chauve_souris.webp","sizeUm":5,"sizeLabel":"5 µm","micro":4,"hint":"Filament de champignon, plus fin qu’une cellule animale.","scaleHint":"Choisir une seule structure fongique allongée, sans mesurer le poil entier."},{"id":"gr","date":7000,"label":"Globule rouge","img":"cartes/12_globules_rouges.webp","sizeUm":6,"sizeLabel":"6 µm","micro":3,"hint":"Cellule sanguine humaine, sans noyau.","scaleHint":"Mesurer sa plus grande dimension visible dans la coupe du capillaire."},{"id":"cocco","date":7000,"label":"Coccolithophore","img":"cartes/13_coccolithophore.webp","sizeUm":8,"sizeLabel":"8 µm","micro":1,"hint":"Algue unicellulaire marine, visible en microscopie optique.","scaleHint":"Une cellule rouge mesure un peu moins que la barre de 10 µm."},{"id":"cavinula","date":7000,"label":"Diatomée Cavinula","img":"cartes/14_diatom_e_cavinula.webp","sizeUm":9,"sizeLabel":"9 µm","micro":4,"hint":"Petite diatomée : algue à coque de silice.","scaleHint":"Le diamètre de sa valve ronde vaut environ 4 à 5 barres de 2 µm."},{"id":"fbalm","date":15000,"label":"Noyau de la carte fBALM","img":"cartes/15_adn_du_noyau__fbalm.webp","sizeUm":12,"sizeLabel":"12 µm","micro":2,"hint":"Noyau d’une cellule humaine : un organite de quelques dizaines de micromètres.","scaleHint":"Mesurer mentalement le noyau entier ; la barre de 500 nm concerne seulement les agrandissements."},{"id":"proto","date":15000,"label":"Amibe Protosporangium","img":"cartes/16_amibe_protosporangium.webp","sizeUm":17,"sizeLabel":"17 µm","micro":1,"hint":"Amibe, plus grande qu’un globule rouge.","scaleHint":"Sa longueur, projections comprises, représente environ 1,7 barre de 10 µm."},{"id":"phaeo","date":15000,"label":"Diatomée Phaeodactylum","img":"cartes/17_diatom_e_phaeodactylum.webp","sizeUm":18,"sizeLabel":"18 µm","micro":1,"hint":"Diatomée allongée, cellule d’algue unicellulaire.","scaleHint":"Choisir la cellule fusiforme du bas et mesurer sa longueur."},{"id":"anaera","date":30000,"label":"Amibe Anaeramoeba","img":"cartes/18_amibe_anaeramoeba.webp","sizeUm":25,"sizeLabel":"25 µm","micro":1,"hint":"Amibe visible en microscopie optique, grande cellule unicellulaire.","scaleHint":"Le corps visible sur l’image optique occupe environ 2,5 barres de 10 µm."},{"id":"pollen","date":30000,"label":"Grain de pollen","img":"cartes/19_grains_de_pollen.webp","sizeUm":35,"sizeLabel":"35 µm","micro":1,"hint":"Grain de pollen : cellule végétale visible à la loupe.","scaleHint":"Prendre le grain en haut à gauche : la planche montre plusieurs pollens de tailles différentes."},{"id":"quadru","date":60000,"label":"Amibe à thèque Quadrulella","img":"cartes/20_amibe___th_que.webp","sizeUm":50,"sizeLabel":"50 µm","micro":1,"hint":"Grande amibe protégée par une coque (thèque).","scaleHint":"Mesurer la thèque au centre : sa longueur est proche de la barre de 50 µm."},{"id":"buccale","date":60000,"label":"Cellule buccale","img":"cartes/21_cellule_buccale.webp","sizeUm":65,"sizeLabel":"65 µm","micro":1,"hint":"Cellule humaine de la bouche, visible en microscopie optique.","scaleHint":"Cellule rose isolée ; pas de barre sur cette photo. La valeur vient d’une étude morphométrique."},{"id":"diatdiv","date":60000,"label":"Diatomée de la planche « diversité »","img":"cartes/22_diatom_es___diversit.webp","sizeUm":70,"sizeLabel":"70 µm","micro":1,"hint":"Grande diatomée, cellule d’algue nettement plus large qu’un pollen moyen.","scaleHint":"Choisir uniquement la diatomée nº 28, en bas à droite, avec sa propre barre de 20 µm."},{"id":"oignon","date":150000,"label":"Cellule d’épiderme d’oignon rouge","img":"cartes/23_piderme_d_oignon_rouge.webp","sizeUm":120,"sizeLabel":"120 µm","micro":1,"hint":"Grande cellule végétale d’épiderme, visible à faible grossissement.","scaleHint":"Choisir une cellule centrale : sa longueur représente environ 60 % de la barre de 200 µm."},{"id":"nostoc","date":150000,"label":"Nostoc","img":"cartes/24_cyanobacterie_nostoc.webp","sizeUm":230,"sizeLabel":"230 µm","micro":1,"hint":"Colonie sphérique de cyanobactéries, visible à l’œil nu.","scaleHint":"On mesure ici la colonie sphérique entière, pas une cyanobactérie individuelle."}];
+
+const BINS={
+  100:{play:"virus",reveal:"80–150 nm"},
+  300:{play:"gros virus",reveal:"200–300 nm"},
+  1000:{play:"bactérie",reveal:"0,8–2 µm"},
+  3000:{play:"petite cellule",reveal:"2–4 µm"},
+  7000:{play:"cellule",reveal:"5–10 µm"},
+  15000:{play:"grosse cellule",reveal:"10–20 µm"},
+  30000:{play:"grande cellule",reveal:"20–40 µm"},
+  60000:{play:"très grande cellule",reveal:"40–80 µm"},
+  150000:{play:"colonie / tissu",reveal:"> 100 µm"}
+};
+const MARK_SHORT={1:"MO",2:"HR",3:"MET",4:"MEB"};
+const MARK_FULL={1:"microscopie optique classique",2:"microscopie optique à haute résolution",3:"microscopie électronique à transmission",4:"microscopie électronique à balayage"};
+const MARK_CODES=["1","2","3","4"];
+function binLabel(d,forceReveal){
+  const b=BINS[d];
+  if(!b) return String(d);
+  return (forceReveal||document.body.classList.contains("corrected"))?b.reveal:b.play;
+}
+function refreshAxisLabels(){
+  datesEl.querySelectorAll(".tl-date-col:not(.phone-park)").forEach(col=>{
+    const d=Number(col.dataset.date);
+    const el=col.querySelector(".tl-date");
+    if(el) el.textContent=binLabel(d);
+  });
+}
+function revealCorrection(showKey){
+  document.body.classList.add("corrected");
+  document.querySelectorAll(".drop-zone:not(#phone-park) .card").forEach(card=>{
+    const ev=events.find(x=>x.id===card.dataset.id);
+    const top=card.querySelector(".card-top");
+    if(ev&&top) top.textContent=ev.sizeLabel;
+    card.classList.add("size-revealed");
+  });
+  refreshAxisLabels();
+  if(showKey) solution();
+}
+function keepZoomInView(card){
+  if(!card||card.classList.contains("dragging")||card.classList.contains("grabbing")) return;
+  const keep=card.classList.contains("hint-open");
+  const prev=card.style.transition;
+  card.style.transition="none";
+  card.classList.remove("zoomed");
+  card.style.setProperty("--zx","0px");
+  card.style.setProperty("--zy","0px");
+  card.style.setProperty("--zs","1");
+  void card.offsetWidth;
+  const r=card.getBoundingClientRect();
+  if(!r.width||!r.height){
+    card.style.transition=prev;
+    return;
+  }
+  const header=document.querySelector("header");
+  const padTop=Math.max(12,(header?header.getBoundingClientRect().bottom:0)+8);
+  const pad=12;
+  const wanted=card.closest(".drop-zone")?2.8:2.45;
+  const s=Math.max(1.2,Math.min(wanted,(window.innerWidth-pad*2)/r.width,(window.innerHeight-padTop-pad)/r.height));
+  const w=r.width*s,h=r.height*s;
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  let left=cx-w/2,top=cy-h/2,dx=0,dy=0;
+  if(left<pad) dx=pad-left;
+  if(left+w+dx>window.innerWidth-pad) dx=window.innerWidth-pad-w-left;
+  if(top<padTop) dy=padTop-top;
+  if(top+h+dy>window.innerHeight-pad) dy=window.innerHeight-pad-h-top;
+  card.style.setProperty("--zs",String(s));
+  card.style.setProperty("--zx",dx+"px");
+  card.style.setProperty("--zy",dy+"px");
+  card.classList.add("zoomed");
+  if(keep) card.classList.add("hint-open");
+  void card.offsetWidth;
+  card.style.transition=prev;
+}
+function showSizeHint(anchor,e){
+  const pop=document.getElementById("hint-pop");
+  if(!pop) return;
+  const card=anchor.closest(".card");
+  document.querySelectorAll(".card.hint-open").forEach(c=>{if(c!==card) c.classList.remove("hint-open")});
+  if(card){
+    card.classList.add("hint-open");
+    keepZoomInView(card);
+  }
+  pop.querySelector("p").textContent=e.hint;
+  pop.hidden=false;
+  const box=(card||anchor).getBoundingClientRect();
+  const pw=Math.min(260,window.innerWidth-16);
+  let left=box.right+10;
+  if(left+pw>window.innerWidth-8) left=Math.max(8,box.left-pw-10);
+  let top=Math.max(8,box.top);
+  if(top+160>window.innerHeight-8) top=Math.max(8,window.innerHeight-168);
+  pop.style.left=left+"px";
+  pop.style.top=top+"px";
+}
+document.addEventListener("pointerenter",ev=>{
+  const card=ev.target&&ev.target.closest&&ev.target.closest(".card");
+  if(!card||ev.pointerType&&ev.pointerType!=="mouse") return;
+  keepZoomInView(card);
+},true);
+document.addEventListener("pointerleave",ev=>{
+  const card=ev.target&&ev.target.closest&&ev.target.closest(".card");
+  if(!card||card.contains(ev.relatedTarget)) return;
+  if(card.classList.contains("hint-open")) return;
+  card.classList.remove("zoomed");
+  card.style.removeProperty("--zx");
+  card.style.removeProperty("--zy");
+  card.style.removeProperty("--zs");
+},true);
+window.addEventListener("resize",()=>{
+  document.querySelectorAll(".card:hover,.card.hint-open").forEach(keepZoomInView);
+});
+document.addEventListener("click",ev=>{
+  const pop=document.getElementById("hint-pop");
+  if(!pop||pop.hidden) return;
+  if(ev.target.closest && (ev.target.closest(".card-hint-btn")||ev.target.closest("#hint-pop"))) return;
+  pop.hidden=true;
+  document.querySelectorAll(".card.hint-open").forEach(c=>{
+    c.classList.remove("hint-open");
+    if(!c.matches(":hover")) c.classList.remove("zoomed");
+  });
+});
+
+const uniqueDates=[...new Set(events.map(e=>e.date))].sort((a,b)=>a-b);
+const PRINCIPLES=Object.fromEntries(events.map(e=>[e.id,e.micro]));
+let dragId=null,dragMark=null,dragMarkFrom=null,step=1,selectedCardId=null;
+const deck=document.getElementById("deck");
+const slotsEl=document.getElementById("tl-slots");
+const ticksEl=document.getElementById("tl-ticks");
+const datesEl=document.getElementById("tl-dates");
+const msg=document.getElementById("msg");
+const scoreEl=document.getElementById("score");
+const bankCount=document.getElementById("bank-count");
+const markerBank=document.getElementById("marker-bank");
+const markCount=document.getElementById("mark-count");
+const SAVE_KEY="sizeline-tara-v1";
+let skipSave=false;
+let hintsFrise=0,hintsPrincipes=0;
+let undoStack=[];
+let redoStack=[];
+
+function updateHintCount(){
+  const text=`Indices : ${hintsFrise+hintsPrincipes}  (échelle ${hintsFrise} · microscopes ${hintsPrincipes})`;
+  ["hintCount","hintCountModal"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=text;
+  });
+}
+
+function readSave(){
+  try{return JSON.parse(localStorage.getItem(SAVE_KEY)||"null")}catch(err){return null}
+}
+function hasProgress(s){
+  if(!s) return false;
+  return Boolean((s.placed&&s.placed.length)||(s.marks&&Object.keys(s.marks).length)||(s.hintsFrise||s.hintsPrincipes));
+}
+function saveState(){
+  if(skipSave||document.body.classList.contains("game-play")) return;
+  try{
+    const placed=[];
+    document.querySelectorAll(".drop-zone").forEach(z=>{
+      if(z.dataset.date==="park") return;
+      z.querySelectorAll(".card").forEach(c=>placed.push({id:c.dataset.id,date:z.dataset.date}));
+    });
+    const deckIds=[...deck.querySelectorAll(".card")].map(c=>c.dataset.id);
+    const marks={};
+    document.querySelectorAll(".card .card-mark").forEach(b=>{
+      const card=b.closest(".card");
+      if(card) marks[card.dataset.id]=b.dataset.n;
+    });
+    const flags={};
+    document.querySelectorAll(".card").forEach(c=>{
+      const f=["correct","wrong","mark-ok","mark-bad"].filter(k=>c.classList.contains(k));
+      if(f.length) flags[c.dataset.id]=f;
+    });
+    if(!placed.length && !Object.keys(marks).length && !hintsFrise && !hintsPrincipes){
+      localStorage.removeItem(SAVE_KEY);
+      return;
+    }
+    localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,deck:deckIds,placed,marks,flags,hintsFrise,hintsPrincipes}));
+  }catch(err){}
+}
+function clearSave(){
+  try{localStorage.removeItem(SAVE_KEY)}catch(err){}
+}
+function restartFresh(){
+  clearSave();
+  hideResume();
+  closeActivity();
+  clearHistory();
+  build();
+}
+function hideResume(){
+  document.getElementById("resume-modal").classList.remove("show");
+}
+
+function labelDate(d,forceReveal){return binLabel(d,forceReveal)}
+function shortLabel(label){
+  return String(label).split("—")[0].split(" - ")[0].trim();
+}
+function speakText(text){
+  if(!text||!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="fr-FR";
+  u.rate=0.92;
+  const fr=speechSynthesis.getVoices().find(v=>String(v.lang).toLowerCase().startsWith("fr"));
+  if(fr) u.voice=fr;
+  speechSynthesis.speak(u);
+}
+function speakCard(e){
+  if(!e) return;
+  const extra=(document.body.classList.contains("corrected")||document.querySelector(`.card[data-id="${e.id}"].flipped`))?(" Taille. "+e.sizeLabel+". "+e.scaleHint):(" "+e.hint);
+  speakText("Carte. "+String(e.label).replace(/\s*[—–-]\s*/g,". ")+extra);
+}
+function speakDate(dateStr){
+  if(dateStr==="park"){
+    speakText("Emplacement de la carte à placer.");
+    return;
+  }
+  const d=Number(dateStr);
+  if(!Number.isFinite(d)) return;
+  const drop=document.querySelector(`.drop-zone[data-date="${dateStr}"]`);
+  const labels=[...(drop?drop.querySelectorAll(".card"):[])].map(c=>{
+    const ev=events.find(x=>x.id===c.dataset.id);
+    return ev?String(ev.label).replace(/\s*[—–-]\s*/g,". "):"";
+  }).filter(Boolean);
+  let text="Intervalle. "+labelDate(d)+".";
+  if(labels.length) text+=" "+labels.length+" carte"+(labels.length>1?"s":"")+" ici. "+labels.join(". ");
+  else text+=" Aucune carte à cet intervalle.";
+  speakText(text);
+}
+if(window.speechSynthesis) speechSynthesis.addEventListener("voiceschanged",()=>{});
+function isCardLocked(card){return Boolean(card&&(card.classList.contains("correct")||card.classList.contains("game-fixed")));}
+function syncCardLocks(){
+  document.querySelectorAll(".card").forEach(c=>{
+    const lock=isCardLocked(c);
+    c.classList.toggle("locked",lock);
+    c.draggable=!lock;
+  });
+}
+function dropFromPoint(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(!el) return null;
+  const drop=el.closest(".drop-zone");
+  if(drop&&drop.dataset.date!=="park") return drop;
+  const col=el.closest(".tl-date-col");
+  if(col&&col.dataset.date!=="park") return document.querySelector(`.drop-zone[data-date="${col.dataset.date}"]`);
+  if(el.closest("#deck,.bank-wrap")) return deck;
+  return null;
+}
+function makeCard(e){
+  const el=document.createElement("div");
+  el.className="card";
+  el.draggable=true;
+  el.dataset.id=e.id;
+  el.innerHTML=`<div class="card-top">Carte</div><div class="card-visual"><div class="card-photo"><img src="${e.img}" alt="${e.label}" draggable="false"><div class="card-scale-mask" aria-hidden="true"></div><div class="card-verso"><div class="card-size">${e.sizeLabel}</div><div class="card-bar">${e.scaleHint}</div></div></div><button class="card-hint-btn" type="button" aria-label="Indice de taille" title="Indice">?</button><button class="card-flip-btn" type="button" aria-label="Retourner la carte" title="Retourner">↻</button></div><div class="card-body"><div class="card-name">${shortLabel(e.label)}</div></div><button class="card-listen" type="button" aria-label="Écouter la description de la carte" title="Écouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8 8 0 0 1 0 12"/></svg></button>`;
+  el.querySelector(".card-hint-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();showSizeHint(ev.currentTarget,e);});
+  el.querySelector(".card-flip-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();el.classList.toggle("flipped");});
+  el.addEventListener("pointerdown",ev=>{
+    if(ev.pointerType==="mouse") el.classList.add("grabbing");
+  });
+  el.addEventListener("pointerup",()=>el.classList.remove("grabbing"));
+  el.addEventListener("pointercancel",()=>el.classList.remove("grabbing"));
+  el.addEventListener("dragstart",ev=>{
+    if(isCardLocked(el)){ev.preventDefault();return;}
+    if(ev.target.closest && ev.target.closest(".card-mark, .card-listen, .card-hint-btn, .card-flip-btn")) return;
+    dragMark=null;dragMarkFrom=null;
+    dragId=e.id;
+    el.classList.add("dragging","grabbing");
+    ev.dataTransfer.effectAllowed="move";
+    ev.dataTransfer.setData("text/plain",e.id);
+    const ghost=el.cloneNode(true);
+    ghost.classList.remove("dragging","grabbing","phone-current","phone-selected");
+    ghost.style.cssText="position:absolute;left:-2000px;top:0;transform:none;opacity:1;margin:0;pointer-events:none;width:"+el.offsetWidth+"px";
+    document.body.appendChild(ghost);
+    const r=el.getBoundingClientRect();
+    ev.dataTransfer.setDragImage(ghost,Math.max(0,ev.clientX-r.left),Math.max(0,ev.clientY-r.top));
+    el._dragGhost=ghost;
+  });
+  el.addEventListener("dragend",()=>{
+    el.classList.remove("dragging","grabbing");
+    if(el._dragGhost){el._dragGhost.remove();el._dragGhost=null;}
+  });
+  el.addEventListener("dragover",ev=>{
+    const n=ev.dataTransfer.getData("text/plain")||dragMark;
+    if(!el.classList.contains("markable")||!MARK_CODES.includes(String(n||""))) return;
+    ev.preventDefault();ev.stopPropagation();
+  });
+  el.addEventListener("drop",ev=>{
+    const n=String(ev.dataTransfer.getData("text/plain")||dragMark||"");
+    if(!el.classList.contains("markable")||!MARK_CODES.includes(n)) return;
+    ev.preventDefault();ev.stopPropagation();
+    placeMark(el,n,dragMarkFrom);
+  });
+  el.addEventListener("click",ev=>{
+    if(ev.target.closest && ev.target.closest(".card-mark, .card-listen, .card-hint-btn, .card-flip-btn")) return;
+    if(el.classList.contains("markable")&&MARK_CODES.includes(String(dragMark||""))){
+      placeMark(el,dragMark,null);
+      return;
+    }
+    if(isPhoneUI()){
+      if(el.classList.contains("placed")){
+        if(!isCardLocked(el)){
+          selectedCardId=e.id;
+          document.querySelectorAll(".card").forEach(c=>c.classList.toggle("phone-selected",c.dataset.id===e.id));
+          setPhoneTargets(true);
+          publishIntent();
+        }
+        return;
+      }
+      pickPhoneCard(e.id);
+      return;
+    }
+    if(document.body.classList.contains("game-play")&&game.state){
+      if(!el.classList.contains("game-fixed")&&!el.classList.contains("game-hidden")){
+        selectedCardId=e.id;
+        document.querySelectorAll(".card").forEach(c=>c.classList.toggle("phone-selected",c.dataset.id===e.id));
+        publishIntent();
+      }
+      return;
+    }
+    if(document.body.classList.contains("audio-desc")) speakCard(e);
+  });
+  return el;
+}
+function resetStep2(){
+  markerBank.innerHTML="";
+  document.querySelectorAll(".card").forEach(c=>{
+    c.classList.remove("markable","unmarkable","mark-ok","mark-bad");
+    c.querySelectorAll(".card-mark").forEach(m=>m.remove());
+  });
+}
+function drawAxis(){
+  const parkCol=document.createElement("div");
+  parkCol.className="tl-col phone-park";
+  const park=document.createElement("div");
+  park.className="drop-zone";
+  park.id="phone-park";
+  park.dataset.date="park";
+  const cycle=document.getElementById("phone-cycle");
+  if(cycle) parkCol.appendChild(cycle);
+  parkCol.appendChild(park);
+  slotsEl.appendChild(parkCol);
+  const parkTick=document.createElement("div");
+  parkTick.className="tl-tick-col phone-park";
+  parkTick.innerHTML='<div class="tl-tick"></div>';
+  ticksEl.appendChild(parkTick);
+  const parkDate=document.createElement("div");
+  parkDate.className="tl-date-col phone-park";
+  parkDate.dataset.date="park";
+  parkDate.innerHTML='<div class="tl-date">…</div>';
+  datesEl.appendChild(parkDate);
+  uniqueDates.forEach(d=>{
+    const col=document.createElement("div");
+    col.className="tl-col";
+    const zone=document.createElement("div");
+    zone.className="drop-zone";
+    zone.dataset.date=String(d);
+    col.appendChild(zone);
+    slotsEl.appendChild(col);
+    const tickCol=document.createElement("div");
+    tickCol.className="tl-tick-col";
+    tickCol.innerHTML='<div class="tl-tick"></div>';
+    ticksEl.appendChild(tickCol);
+    const dateCol=document.createElement("div");
+    dateCol.className="tl-date-col";
+    dateCol.dataset.date=String(d);
+    dateCol.innerHTML=`<div class="tl-date">${labelDate(d)}</div>`;
+    datesEl.appendChild(dateCol);
+  });
+  wireDrops();
+}
+function parkCycleSafe(){
+  const cycle=document.getElementById("phone-cycle");
+  if(cycle) document.body.appendChild(cycle);
+}
+function build(){
+  skipSave=true;
+  resetStep2();
+  document.body.classList.remove("corrected");
+  deck.innerHTML="";
+  parkCycleSafe();
+  slotsEl.innerHTML="";
+  ticksEl.innerHTML="";
+  datesEl.innerHTML="";
+  [...events].sort(()=>Math.random()-.5).forEach(e=>deck.appendChild(makeCard(e)));
+  drawAxis();
+  updateScore();
+  msg.classList.remove("show");
+  document.getElementById("solution").classList.remove("show");
+  startStep2();
+  hintsFrise=0;hintsPrincipes=0;updateHintCount();
+  skipSave=false;
+  clearHistory();
+  saveState();
+  updatePhoneDeck();
+}
+function restore(saved){
+  skipSave=true;
+  resetStep2();
+  document.body.classList.remove("corrected");
+  deck.innerHTML="";
+  parkCycleSafe();
+  slotsEl.innerHTML="";
+  ticksEl.innerHTML="";
+  datesEl.innerHTML="";
+  const seen=new Set();
+  const ordered=[];
+  [...(saved.deck||[]),...((saved.placed||[]).map(p=>p.id))].forEach(id=>{
+    if(!seen.has(id)&&events.some(e=>e.id===id)){seen.add(id);ordered.push(id)}
+  });
+  events.forEach(e=>{if(!seen.has(e.id)) ordered.push(e.id)});
+  ordered.forEach(id=>deck.appendChild(makeCard(events.find(e=>e.id===id))));
+  drawAxis();
+  startStep2();
+  (saved.placed||[]).forEach(p=>{
+    if(p.date==="park") return;
+    const drop=document.querySelector(`.drop-zone[data-date="${p.date}"]`);
+    if(drop) place(p.id,drop);
+  });
+  Object.entries(saved.marks||{}).forEach(([id,n])=>{
+    const card=document.querySelector(`.card[data-id="${id}"]`);
+    if(card) placeMark(card,String(n),null);
+  });
+  Object.entries(saved.flags||{}).forEach(([id,flags])=>{
+    const card=document.querySelector(`.card[data-id="${id}"]`);
+    if(card) flags.forEach(c=>card.classList.add(c));
+  });
+  updateScore();
+  hintsFrise=Number(saved.hintsFrise)||0;
+  hintsPrincipes=Number(saved.hintsPrincipes)||0;
+  updateHintCount();
+  skipSave=false;
+  syncCardLocks();
+  updatePhoneDeck();
+}
+function wireDrops(){
+  document.querySelectorAll(".drop-zone").forEach(drop=>{
+    drop.addEventListener("dragover",e=>{
+      const id=e.dataTransfer.getData("text/plain")||dragId||dragMark;
+      if(MARK_CODES.includes(String(id||""))) return;
+      e.preventDefault();drop.classList.add("drag-over");
+    });
+    drop.addEventListener("dragleave",()=>drop.classList.remove("drag-over"));
+    drop.addEventListener("drop",e=>{
+      e.preventDefault();
+      drop.classList.remove("drag-over");
+      const id=e.dataTransfer.getData("text/plain")||dragId;
+      if(MARK_CODES.includes(String(id||""))) return;
+      place(id,drop);
+    });
+    drop.addEventListener("click",e=>{
+      if(!isPhoneUI()&&!document.body.classList.contains("game-play")) return;
+      if(drop.dataset.date==="park") return;
+      if(e.target.closest && e.target.closest(".card")) return;
+      const id=phonePlaceId();
+      if(!id) return;
+      place(id,drop);
+    });
+  });
+  document.querySelectorAll(".tl-date-col").forEach(col=>{
+    col.addEventListener("click",()=>{
+      if(document.body.classList.contains("audio-desc")){
+        speakDate(col.dataset.date);
+        return;
+      }
+      if((!isPhoneUI()&&!document.body.classList.contains("game-play"))||col.dataset.date==="park") return;
+      const drop=document.querySelector(`.drop-zone[data-date="${col.dataset.date}"]`);
+      const id=phonePlaceId();
+      if(drop&&id) place(id,drop);
+    });
+  });
+}
+function place(id,drop,record){
+  if(document.body.classList.contains("game-play")&&game.state){
+    if(!drop||drop.dataset.date==="park"){
+      if(drop&&drop.dataset.date==="park") previewGamePlace(id,"park");
+      return;
+    }
+    previewGamePlace(id,drop.dataset.date);
+    return;
+  }
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(!card||!drop) return;
+  if(record!==false&&isCardLocked(card)) return;
+  const from=cardZone(card);
+  drop.appendChild(card);
+  if(drop.dataset.date==="park"){
+    card.classList.remove("placed","correct","wrong");
+  }else{
+    card.classList.add("placed");
+    card.classList.remove("correct","wrong");
+    if(selectedCardId===id) selectedCardId=null;
+    if(record!==false) recordMove(id,from,{type:"date",date:drop.dataset.date});
+  }
+  updateScore();
+  saveState();
+  updatePhoneDeck();
+}
+deck.addEventListener("dragover",e=>{
+  const id=e.dataTransfer.getData("text/plain")||dragId||dragMark;
+  if(MARK_CODES.includes(String(id||""))) return;
+  e.preventDefault();deck.classList.add("drag-over");
+});
+deck.addEventListener("dragleave",()=>deck.classList.remove("drag-over"));
+deck.addEventListener("drop",e=>{
+  e.preventDefault();
+  deck.classList.remove("drag-over");
+  const id=e.dataTransfer.getData("text/plain")||dragId;
+  if(MARK_CODES.includes(String(id||""))) return;
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(card&&!isCardLocked(card)){
+    const from=cardZone(card);
+    deck.appendChild(card);
+    card.classList.remove("placed","correct","wrong");
+    recordMove(id,from,{type:"deck"});
+    updateScore();
+    saveState();
+    updatePhoneDeck();
+  }
+});
+function isPhoneUI(){return document.body.classList.contains("phone")}
+function unplacedCards(){
+  return [...document.querySelectorAll("#deck .card, #phone-park .card")].filter(c=>c.style.display!=="none"&&!c.classList.contains("game-hidden"));
+}
+function phonePlaceId(){
+  if(document.body.classList.contains("game-play")&&gameDraft) return gameDraft.id;
+  if(selectedCardId){
+    const sel=document.querySelector(`.card[data-id="${selectedCardId}"]`);
+    if(sel&&!isCardLocked(sel)) return selectedCardId;
+  }
+  const park=document.querySelector("#phone-park .card");
+  if(park) return park.dataset.id;
+  const cur=document.querySelector(".card.phone-current");
+  return cur?cur.dataset.id:null;
+}
+function setPhoneTargets(on){
+  document.querySelectorAll(".drop-zone").forEach(z=>{
+    if(z.dataset.date==="park") return;
+    z.classList.toggle("phone-target",Boolean(on)&&isPhoneUI()&&!document.body.classList.contains("phone-all"));
+  });
+}
+function updateToggleBank(){
+  const btn=document.getElementById("toggleBank");
+  if(btn) btn.textContent=document.body.classList.contains("phone-all")?"Une carte":"Toutes les cartes";
+}
+function pickPhoneCard(id){
+  selectedCardId=id;
+  document.body.classList.remove("phone-all");
+  updateToggleBank();
+  updatePhoneDeck(id);
+  publishIntent();
+}
+function updatePhoneDeck(preferId){
+  const park=document.getElementById("phone-park");
+  const cards=unplacedCards();
+  const pos=document.getElementById("phone-pos");
+  if(!isPhoneUI()||document.body.classList.contains("phone-all")){
+    cards.forEach(c=>{
+      if(c.parentElement!==deck) deck.appendChild(c);
+      c.classList.remove("phone-current");
+    });
+    if(pos) pos.textContent=cards.length?`1 / ${cards.length}`:"0 / 0";
+    setPhoneTargets(false);
+    return;
+  }
+  if(!cards.length){
+    if(pos) pos.textContent="0 / 0";
+    selectedCardId=null;
+    setPhoneTargets(false);
+    return;
+  }
+  const want=preferId||selectedCardId;
+  let i=cards.findIndex(c=>c.dataset.id===want);
+  if(i<0) i=cards.findIndex(c=>c.classList.contains("phone-current"));
+  if(i<0) i=0;
+  cards.forEach((c,j)=>{
+    c.classList.toggle("phone-current",j===i);
+    if(j===i&&park) park.appendChild(c);
+    else deck.appendChild(c);
+  });
+  document.querySelectorAll(".card").forEach(c=>c.classList.toggle("phone-selected",c.dataset.id===cards[i].dataset.id));
+  selectedCardId=cards[i].dataset.id;
+  if(pos) pos.textContent=`${i+1} / ${cards.length}`;
+  setPhoneTargets(true);
+}
+function cyclePhone(dir){
+  const cards=unplacedCards();
+  if(!cards.length) return;
+  let i=cards.findIndex(c=>c.classList.contains("phone-current"));
+  if(i<0) i=0;
+  i=(i+dir+cards.length)%cards.length;
+  pickPhoneCard(cards[i].dataset.id);
+}
+function cardZone(card){
+  const drop=card&&card.closest&&card.closest(".drop-zone");
+  if(!drop) return {type:"deck"};
+  if(drop.dataset.date==="park") return {type:"park"};
+  return {type:"date",date:drop.dataset.date};
+}
+function sameZone(a,b){
+  return a&&b&&a.type===b.type&&a.date===b.date;
+}
+function updateUndoButtons(){
+  if(document.body.classList.contains("game-play")){
+    document.querySelectorAll(".js-undo").forEach(b=>b.disabled=!gameDraftUndo.length);
+    document.querySelectorAll(".js-redo").forEach(b=>b.disabled=!gameDraftRedo.length);
+    document.querySelectorAll(".js-validate").forEach(b=>{
+      const on=Boolean(gameDraft&&isMyTurn());
+      b.disabled=!on;
+      b.classList.toggle("ready",on);
+    });
+    return;
+  }
+  document.querySelectorAll(".js-undo").forEach(b=>b.disabled=!undoStack.length);
+  document.querySelectorAll(".js-redo").forEach(b=>b.disabled=!redoStack.length);
+}
+function clearHistory(){
+  undoStack=[];
+  redoStack=[];
+  updateUndoButtons();
+}
+function recordMove(id,from,to){
+  if(skipSave||!id||sameZone(from,to)) return;
+  if(from.type==="park") from={type:"deck"};
+  if(to.type==="park") return;
+  undoStack.push({id,from,to});
+  redoStack=[];
+  updateUndoButtons();
+}
+function applyZone(id,zone){
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(!card||!zone) return;
+  if(zone.type==="date"){
+    const drop=document.querySelector(`.drop-zone[data-date="${zone.date}"]`);
+    if(drop) place(id,drop,false);
+    return;
+  }
+  deck.appendChild(card);
+  card.classList.remove("placed","correct","wrong");
+  if(selectedCardId===id) selectedCardId=null;
+  updateScore();
+  saveState();
+  updatePhoneDeck();
+}
+function undoMove(){
+  if(document.body.classList.contains("game-play")){gameUndoDraft();return;}
+  const step=undoStack.pop();
+  if(!step) return;
+  applyZone(step.id,step.from);
+  redoStack.push(step);
+  updateUndoButtons();
+}
+function redoMove(){
+  if(document.body.classList.contains("game-play")){gameRedoDraft();return;}
+  const step=redoStack.pop();
+  if(!step) return;
+  applyZone(step.id,step.to);
+  undoStack.push(step);
+  updateUndoButtons();
+}
+function syncPhone(){
+  const coarse=window.matchMedia("(pointer:coarse)").matches;
+  const touch=navigator.maxTouchPoints>1;
+  const short=Math.min(window.innerWidth,window.innerHeight);
+  const phone=coarse||(touch&&short<=1024)||window.innerWidth<900;
+  document.body.classList.toggle("phone",phone);
+  if(phone) updatePhoneDeck();
+  else{
+    document.body.classList.remove("phone-all");
+    setPhoneTargets(false);
+    updateToggleBank();
+  }
+}
+function updateScore(){
+  const placed=document.querySelectorAll(".drop-zone:not(#phone-park) .card").length;
+  scoreEl.textContent=`${placed} / ${events.length}`;
+  bankCount.textContent=String(events.length-placed);
+}
+function makeMarkChip(n){
+  const chip=document.createElement("div");
+  chip.className="mark-chip";
+  chip.draggable=true;
+  chip.dataset.n=String(n);
+  chip.textContent=MARK_SHORT[n]||n;
+  chip.addEventListener("dragstart",ev=>{
+    dragId=null;
+    dragMark=String(n);
+    dragMarkFrom=null;
+    chip.classList.add("dragging");
+    ev.dataTransfer.setData("text/plain",String(n));
+  });
+  chip.addEventListener("dragend",()=>chip.classList.remove("dragging"));
+  chip.addEventListener("click",()=>{
+    dragMark=String(n);
+    dragMarkFrom=null;
+    markerBank.querySelectorAll(".mark-chip").forEach(c=>c.classList.remove("dragging"));
+    chip.classList.add("dragging");
+  });
+  return chip;
+}
+function startStep2(){
+  step=2;
+  document.querySelectorAll("#deck .card, .drop-zone .card").forEach(card=>{
+    const id=card.dataset.id;
+    card.classList.toggle("markable",Boolean(PRINCIPLES[id]));
+    card.classList.remove("unmarkable");
+  });
+  markerBank.innerHTML="";
+  Object.values(PRINCIPLES).sort().forEach(n=>markerBank.appendChild(makeMarkChip(n)));
+  updateMarkCount();
+}
+function realCards(){
+  return [...document.querySelectorAll("#deck .card, .drop-zone .card")];
+}
+function originalCard(el){
+  if(!el) return null;
+  return realCards().find(c=>c.dataset.id===el.dataset.id)||el;
+}
+function refreshActivityBoard(){
+  const box=document.getElementById("activity-cards");
+  const modal=document.getElementById("activity-modal");
+  if(!box||!modal.classList.contains("show")) return;
+  box.innerHTML="";
+  realCards().forEach(card=>{
+    const clone=card.cloneNode(true);
+    clone.classList.add("activity-clone");
+    clone.draggable=false;
+    clone.querySelectorAll(".card-mark").forEach(b=>{b.draggable=false});
+    clone.addEventListener("dragover",ev=>{
+      if(!clone.classList.contains("markable")) return;
+      ev.preventDefault();
+    });
+    clone.addEventListener("drop",ev=>{
+      if(!clone.classList.contains("markable")) return;
+      ev.preventDefault();ev.stopPropagation();
+      const n=String(ev.dataTransfer.getData("text/plain")||dragMark||"");
+      placeMark(card,n,originalCard(dragMarkFrom));
+    });
+    clone.addEventListener("click",ev=>{
+      if(ev.target.closest && ev.target.closest(".card-listen")){
+        ev.preventDefault();ev.stopPropagation();
+        speakCard(events.find(x=>x.id===card.dataset.id));
+        return;
+      }
+      if(clone.classList.contains("markable")&&MARK_CODES.includes(String(dragMark||""))){
+        placeMark(card,dragMark,null);
+        return;
+      }
+      if(document.body.classList.contains("audio-desc")) speakCard(events.find(x=>x.id===card.dataset.id));
+    });
+    box.appendChild(clone);
+  });
+}
+function openActivity(){
+  document.getElementById("activity-modal").classList.add("show");
+  document.body.classList.add("activity-on");
+  refreshActivityBoard();
+}
+function closeActivity(){
+  document.getElementById("activity-modal").classList.remove("show");
+  document.body.classList.remove("activity-on");
+  const box=document.getElementById("activity-cards");
+  if(box) box.innerHTML="";
+}
+function placeMark(card,n,fromCard){
+  card=originalCard(card);
+  fromCard=originalCard(fromCard);
+  n=String(n);
+  if(!MARK_CODES.includes(n)||!card.classList.contains("markable")) return;
+  if(fromCard===card) return;
+  if(!fromCard){
+    const used=markerBank.querySelector(`.mark-chip[data-n="${n}"]`);
+    if(!used) return;
+    used.remove();
+  }else{
+    const src=fromCard.querySelector(".card-mark");
+    if(src) src.remove();
+  }
+  const prev=card.querySelector(".card-mark");
+  if(prev){
+    markerBank.appendChild(makeMarkChip(prev.dataset.n));
+    prev.remove();
+  }
+  const badge=document.createElement("div");
+  badge.className="card-mark";
+  badge.draggable=true;
+  badge.dataset.n=n;
+  badge.textContent=MARK_SHORT[n]||n;
+  badge.addEventListener("dragstart",ev=>{
+    dragMark=n;
+    dragMarkFrom=card;
+    ev.dataTransfer.setData("text/plain",n);
+    ev.stopPropagation();
+  });
+  badge.addEventListener("dragend",()=>{dragMarkFrom=null;});
+  card.appendChild(badge);
+  card.classList.remove("mark-ok","mark-bad");
+  updateMarkCount();
+  dragMarkFrom=null;
+  saveState();
+  refreshActivityBoard();
+}
+function updateMarkCount(){
+  markCount.textContent=String(markerBank.querySelectorAll(".mark-chip").length);
+}
+markerBank.addEventListener("dragover",e=>{e.preventDefault();markerBank.classList.add("drag-over")});
+markerBank.addEventListener("dragleave",()=>markerBank.classList.remove("drag-over"));
+markerBank.addEventListener("drop",e=>{
+  e.preventDefault();
+  markerBank.classList.remove("drag-over");
+  const n=String(e.dataTransfer.getData("text/plain")||dragMark||"");
+  if(!MARK_CODES.includes(n)||!dragMarkFrom) return;
+  const moving=dragMarkFrom.querySelector(".card-mark");
+  if(moving) moving.remove();
+  markerBank.appendChild(makeMarkChip(n));
+  dragMarkFrom=null;
+  updateMarkCount();
+  saveState();
+});
+function check(){
+  let ok=0;
+  const placed=document.querySelectorAll(".drop-zone:not(#phone-park) .card");
+  placed.forEach(card=>{
+    card.classList.remove("correct","wrong");
+    const ev=events.find(x=>x.id===card.dataset.id);
+    const zone=card.closest(".drop-zone");
+    if(ev && String(ev.date)===zone.dataset.date){card.classList.add("correct");ok++}
+    else card.classList.add("wrong");
+  });
+  const left=events.length-placed.length;
+  if(ok===events.length && left===0){
+    msg.textContent="Bravo : l’échelle est complète et correcte. Les tailles précises s’affichent sur les cartes et sous l’axe.";
+  }else if(!placed.length){
+    msg.textContent="Place d’abord des cartes sur l’échelle, puis vérifie.";
+  }else{
+    const extra=left?` Il reste ${left} carte(s) dans le stock.`:" Les cartes rouges sont à revoir.";
+    msg.textContent=`${ok} carte(s) bien placée(s) sur ${placed.length}.`+extra;
+  }
+  if(placed.length) revealCorrection(ok===events.length && left===0);
+  msg.classList.add("show");
+  scoreEl.textContent=`${ok} / ${events.length}`;
+  syncCardLocks();
+  saveState();
+}
+function checkMarks(){
+  let ok=0,total=Object.keys(PRINCIPLES).length;
+  realCards().forEach(card=>{
+    card.classList.remove("mark-ok","mark-bad");
+    const expected=PRINCIPLES[card.dataset.id];
+    const badge=card.querySelector(".card-mark");
+    if(!expected){
+      if(badge) card.classList.add("mark-bad");
+      return;
+    }
+    if(badge && Number(badge.dataset.n)===expected){card.classList.add("mark-ok");ok++}
+    else card.classList.add("mark-bad");
+  });
+  const text=ok===total
+    ?"Bravo : tu as associé chaque carte au bon type de microscope."
+    :`${ok} / ${total} associations correctes. Relis les quatre types de microscopie et corrige les cartes rouges.`;
+  showActivityMsg(text);
+  saveState();
+  refreshActivityBoard();
+}
+function hint(){
+  const unplaced=events.filter(e=>!document.querySelector(`.drop-zone:not(#phone-park) .card[data-id="${e.id}"]`));
+  const pool=unplaced.length?unplaced:events;
+  const e=pool[Math.floor(Math.random()*pool.length)];
+  msg.textContent=`Indice : « ${e.label} » se place parmi les ${labelDate(e.date)}.`;
+  msg.classList.add("show");
+  hintsFrise++;
+  updateHintCount();
+  saveState();
+}
+function hintMarks(){
+  const missing=Object.keys(PRINCIPLES).filter(id=>{
+    const card=realCards().find(c=>c.dataset.id===id);
+    const badge=card&&card.querySelector(".card-mark");
+    return !badge || Number(badge.dataset.n)!==PRINCIPLES[id];
+  });
+  if(!missing.length){showActivityMsg("Toutes les vignettes sont déjà correctement placées.");return;}
+  const id=missing[Math.floor(Math.random()*missing.length)];
+  const ev=events.find(x=>x.id===id);
+  showActivityMsg(`Indice : « ${ev.label} » a été obtenue en ${MARK_FULL[PRINCIPLES[id]]}.`);
+  hintsPrincipes++;
+  updateHintCount();
+  saveState();
+}
+function showActivityMsg(text){
+  [msg,document.getElementById("activity-msg")].forEach(el=>{
+    if(!el) return;
+    el.textContent=text;
+    el.classList.add("show");
+  });
+}
+function solution(){
+  const sol=document.getElementById("solution"),ol=document.getElementById("solList");
+  ol.innerHTML="";
+  [...events].sort((a,b)=>a.date-b.date||a.label.localeCompare(b.label)).forEach(e=>{
+    const li=document.createElement("li");
+    li.textContent=`${e.sizeLabel} — ${e.label} — ${e.scaleHint}`;
+    ol.appendChild(li);
+  });
+  sol.classList.add("show");
+}
+document.getElementById("check").onclick=check;
+document.getElementById("checkMarks").onclick=checkMarks;
+document.getElementById("hintMarks").onclick=hintMarks;
+document.getElementById("openActivity").onclick=openActivity;
+document.getElementById("closeActivity").onclick=closeActivity;
+document.getElementById("activity-modal").addEventListener("click",e=>{
+  if(e.target.id==="activity-modal") closeActivity();
+});
+document.getElementById("cardPrev").onclick=()=>cyclePhone(-1);
+document.getElementById("cardNext").onclick=()=>cyclePhone(1);
+document.querySelectorAll(".js-undo").forEach(b=>b.onclick=undoMove);
+document.querySelectorAll(".js-redo").forEach(b=>b.onclick=redoMove);
+document.querySelectorAll(".js-validate").forEach(b=>b.onclick=validateGameDraft);
+document.getElementById("toggleBank").onclick=()=>{
+  document.body.classList.toggle("phone-all");
+  if(document.body.classList.contains("phone-all")) setPhoneTargets(false);
+  else updatePhoneDeck();
+  updateToggleBank();
+};
+let ptrDrag=null;
+function cardAllowsDrag(el){
+  const card=el&&el.closest&&el.closest(".card");
+  if(!card||isCardLocked(card)) return null;
+  if(el.closest(".card-mark,.card-listen,.card-hint-btn,.card-flip-btn")) return null;
+  if(document.body.classList.contains("printing")) return null;
+  if(document.body.classList.contains("game-on")&&!document.body.classList.contains("game-play")) return null;
+  const modal=document.getElementById("activity-modal");
+  if(modal&&modal.classList.contains("show")) return null;
+  return card;
+}
+document.addEventListener("contextmenu",e=>{
+  if(e.target.closest&&e.target.closest(".card")) e.preventDefault();
+});
+document.addEventListener("touchstart",e=>{
+  const card=cardAllowsDrag(e.target);
+  if(!card) return;
+  e.preventDefault();
+},{passive:false});
+document.addEventListener("pointerdown",e=>{
+  if(e.button) return;
+  if(e.pointerType==="mouse") return;
+  const card=cardAllowsDrag(e.target);
+  if(!card) return;
+  e.preventDefault();
+  const box=card.getBoundingClientRect();
+  const zone=cardZone(card);
+  ptrDrag={id:card.dataset.id,card,x:e.clientX,y:e.clientY,started:false,pid:e.pointerId,ghost:null,
+    originX:box.left,originY:box.top,w:box.width,h:box.height,offX:e.clientX-box.left,offY:e.clientY-box.top,
+    railOnly:zone.type==="date"||zone.type==="park"};
+  try{card.setPointerCapture(e.pointerId);}catch(err){}
+},true);
+function railRect(){
+  const slots=document.getElementById("tl-slots");
+  return (slots||document.querySelector(".tl-wrap")).getBoundingClientRect();
+}
+function ghostPos(clientX,clientY){
+  if(!ptrDrag) return {x:clientX,y:clientY};
+  if(ptrDrag.railOnly){
+    const rail=railRect();
+    const x=Math.max(rail.left,Math.min(rail.right-ptrDrag.w,clientX-ptrDrag.offX));
+    return {x:x,y:ptrDrag.originY};
+  }
+  return {x:clientX-ptrDrag.offX,y:clientY-ptrDrag.offY};
+}
+function moveGhost(clientX,clientY){
+  if(!ptrDrag||!ptrDrag.ghost) return;
+  const p=ghostPos(clientX,clientY);
+  const dx=p.x-ptrDrag.originX;
+  const dy=p.y-ptrDrag.originY+(ptrDrag.railOnly?-8:0);
+  ptrDrag.ghost.style.transform="translate("+dx+"px,"+dy+"px)";
+  const wrap=document.querySelector(".tl-wrap");
+  const rail=railRect();
+  if(wrap&&ptrDrag.railOnly){
+    if(clientX>rail.right-36) wrap.scrollLeft+=14;
+    else if(clientX<rail.left+36) wrap.scrollLeft-=14;
+  }
+  document.querySelectorAll(".drop-zone").forEach(z=>z.classList.remove("drag-over"));
+  const over=dropFromPoint(p.x+ptrDrag.w/2,ptrDrag.railOnly?ptrDrag.originY+ptrDrag.h/2:p.y+ptrDrag.h/2);
+  if(over&&over!==deck) over.classList.add("drag-over");
+}
+function clearPtrDrag(info){
+  if(info&&info.ghost) info.ghost.remove();
+  if(info&&info.card) info.card.classList.remove("ptr-hold","dragging");
+  document.querySelectorAll(".drop-zone").forEach(z=>z.classList.remove("drag-over"));
+}
+document.addEventListener("pointermove",e=>{
+  if(!ptrDrag||e.pointerId!==ptrDrag.pid) return;
+  const dx=e.clientX-ptrDrag.x,dy=e.clientY-ptrDrag.y;
+  if(!ptrDrag.started){
+    if(dx*dx+dy*dy<16) return;
+    ptrDrag.started=true;
+    const g=ptrDrag.card.cloneNode(true);
+    g.classList.add("drag-ghost");
+    g.style.left=ptrDrag.originX+"px";
+    g.style.top=ptrDrag.originY+"px";
+    g.style.width=ptrDrag.w+"px";
+    g.style.height=ptrDrag.h+"px";
+    document.body.appendChild(g);
+    ptrDrag.ghost=g;
+    ptrDrag.card.classList.add("ptr-hold");
+  }
+  e.preventDefault();
+  moveGhost(e.clientX,e.clientY);
+},{passive:false});
+document.addEventListener("pointerup",e=>{
+  if(!ptrDrag||e.pointerId!==ptrDrag.pid) return;
+  const info=ptrDrag;
+  const p=info.started?ghostPos(e.clientX,e.clientY):{x:e.clientX,y:e.clientY};
+  ptrDrag=null;
+  clearPtrDrag(info);
+  if(!info.started) return;
+  const over=dropFromPoint(p.x+info.w/2,info.railOnly?info.originY+info.h/2:p.y+info.h/2);
+  if(over===deck){
+    const from=cardZone(info.card);
+    deck.appendChild(info.card);
+    info.card.classList.remove("placed","correct","wrong","locked");
+    info.card.draggable=true;
+    recordMove(info.id,from,{type:"deck"});
+    updateScore();
+    saveState();
+    updatePhoneDeck();
+  }else if(over) place(info.id,over);
+},true);
+document.addEventListener("pointercancel",()=>{
+  const info=ptrDrag;
+  ptrDrag=null;
+  clearPtrDrag(info);
+});
+window.addEventListener("resize",syncPhone);
+window.addEventListener("orientationchange",syncPhone);
+syncPhone();
+document.getElementById("hint").onclick=hint;
+document.getElementById("audioDesc").onclick=()=>{
+  const on=document.body.classList.toggle("audio-desc");
+  document.getElementById("audioDesc").setAttribute("aria-pressed",on?"true":"false");
+  if(!on&&window.speechSynthesis) speechSynthesis.cancel();
+};
+document.addEventListener("click",e=>{
+  const btn=e.target.closest && e.target.closest(".card-listen");
+  if(!btn) return;
+  e.preventDefault();e.stopPropagation();
+  const card=btn.closest(".card");
+  if(!card) return;
+  speakCard(events.find(x=>x.id===card.dataset.id));
+},true);
+document.getElementById("shuffle").onclick=restartFresh;
+document.getElementById("reset").onclick=restartFresh;
+document.getElementById("printTl").onclick=printTimeline;
+scoreEl.onclick=solution;
+document.getElementById("resumeKeep").onclick=()=>{hideResume();restore(readSave()||{});};
+document.getElementById("resumeReset").onclick=restartFresh;
+window.addEventListener("pagehide",saveState);
+const saved=readSave();
+if(hasProgress(saved)){
+  drawAxis();
+  document.getElementById("resume-modal").classList.add("show");
+}else build();
+function isFullscreen(){
+  return Boolean(document.fullscreenElement||document.webkitFullscreenElement);
+}
+function enterFullscreen(){
+  if(isFullscreen()||document.body.classList.contains("printing")) return;
+  const el=document.documentElement;
+  const req=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(req) Promise.resolve(req.call(el)).catch(()=>{});
+}
+function exitFullscreen(){
+  if(!isFullscreen()) return;
+  const ex=document.exitFullscreen||document.webkitExitFullscreen;
+  if(ex) Promise.resolve(ex.call(document)).catch(()=>{});
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest && e.target.closest("#printTl")) return;
+  enterFullscreen();
+});
+document.addEventListener("keydown",e=>{
+  const inField=e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA");
+  if(!inField&&(e.key==="Enter"||e.key==="NumpadEnter")&&document.body.classList.contains("game-play")){
+    e.preventDefault();
+    validateGameDraft();
+    return;
+  }
+  if(!inField&&(e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"){
+    e.preventDefault();
+    if(e.shiftKey) redoMove();
+    else undoMove();
+    return;
+  }
+  if(!inField&&(e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="y"){
+    e.preventDefault();
+    redoMove();
+    return;
+  }
+  if(e.key!=="Escape"&&e.key!=="Backspace"&&e.key!=="Delete") return;
+  if(e.key==="Backspace"&&!inField&&undoStack.length){
+    e.preventDefault();
+    undoMove();
+    return;
+  }
+  if(!isFullscreen()) return;
+  e.preventDefault();
+  exitFullscreen();
+});
+function printTimeline(){
+  check();
+  const sheet=document.getElementById("print-sheet")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"print-sheet",className:"print-sheet"}));
+  sheet.innerHTML="";
+  const title=document.createElement("h1");
+  title.className="print-title";
+  title.textContent="Size Line — échelle de tailles et types de microscopie";
+  sheet.appendChild(title);
+  const inner=document.querySelector(".tl-inner");
+  if(!inner) return;
+  const placedOk=document.querySelectorAll(".drop-zone:not(#phone-park) .card.correct").length;
+  if(!placedOk){
+    msg.textContent="Place et vérifie d’abord des cartes : seules les cartes bien placées s’impriment.";
+    msg.classList.add("show");
+    return;
+  }
+  for(let i=0;i<2;i++){
+    const copy=document.createElement("section");
+    copy.className="print-copy";
+    const clone=inner.cloneNode(true);
+    clone.querySelectorAll(".card").forEach(c=>{
+      if(!c.classList.contains("correct")){c.remove();return;}
+      c.classList.add("print-placed");
+      c.classList.remove("markable","unmarkable","mark-ok","mark-bad","wrong","placed","dragging","zoomed","hint-open","flipped");
+      c.querySelectorAll(".card-hint-btn,.card-flip-btn,.card-listen,.card-scale-mask,.card-verso").forEach(el=>el.remove());
+    });
+    copy.appendChild(clone);
+    sheet.appendChild(copy);
+  }
+  document.body.classList.add("printing");
+  const done=()=>{document.body.classList.remove("printing");sheet.innerHTML="";window.removeEventListener("afterprint",done)};
+  window.addEventListener("afterprint",done);
+  window.print();
+}
+const PEER_PREFIX="t1a-cell-tl-";
+const CODE_CHARS="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function emptyGame(){
+  return {role:null,code:"",peer:null,conn:null,conns:[],state:null,selected:null,myId:null,seatsTarget:2,lobby:[],endLine:"",awaitingSync:false};
+}
+let game=emptyGame();
+let gameDraft=null,gameDraftUndo=[],gameDraftRedo=[];
+function evById(id){return events.find(e=>e.id===id);}
+function evDate(id){return evById(id).date;}
+function randCode(){
+  let s="";
+  for(let i=0;i<4;i++) s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];
+  return s;
+}
+function shareUrl(code){return location.href.split("#")[0]+"#jeu="+code;}
+function paintJoinQr(code){
+  const box=document.getElementById("game-qr");
+  if(!box||!code) return;
+  const url=shareUrl(code);
+  box.innerHTML="";
+  if(typeof QRCode==="function"){
+    try{
+      new QRCode(box,{text:url,width:168,height:168,colorDark:"#1a3566",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+      if(box.querySelector("img,canvas")) return;
+    }catch(err){}
+  }
+  const img=document.createElement("img");
+  img.alt="QR code de la partie "+code;
+  img.width=168;
+  img.height=168;
+  img.src="https://api.qrserver.com/v1/create-qr-code/?size=168x168&margin=4&data="+encodeURIComponent(url);
+  box.appendChild(img);
+}
+function codeFromQrText(raw){
+  const text=String(raw||"");
+  const hash=text.match(/#jeu=([A-Za-z0-9]{4})/i);
+  if(hash) return hash[1];
+  const only=text.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  return only.length===4?only:"";
+}
+async function joinFromQrFile(file){
+  if(!file) return;
+  try{
+    if(!window.BarcodeDetector){
+      alert("Scanne le QR avec l’appareil photo du téléphone, puis ouvre le lien. Tu peux aussi entrer le code.");
+      return;
+    }
+    const bmp=await createImageBitmap(file);
+    const codes=await new BarcodeDetector({formats:["qr_code"]}).detect(bmp);
+    const code=codeFromQrText(codes[0]&&codes[0].rawValue);
+    if(!code){alert("QR non reconnu. Entre le code à 4 caractères.");return;}
+    startGuest(code);
+  }catch(err){
+    alert("Impossible de lire le QR. Entre le code ou ouvre le lien.");
+  }
+}
+function cardsPerPlayer(n){return n>=6?3:n===5?4:5;}
+function openGameLobby(){document.body.classList.add("game-on");}
+function resetGameNet(){
+  (game.conns||[]).forEach(c=>{try{c.close();}catch(err){}});
+  try{if(game.conn) game.conn.close();}catch(err){}
+  try{if(game.peer) game.peer.destroy();}catch(err){}
+  const keep=game.seatsTarget||2;
+  game=emptyGame();
+  game.seatsTarget=keep;
+}
+function closeGame(){
+  resetGameNet();
+  document.body.classList.remove("game-on","game-play");
+  const mini=document.getElementById("game-opp-mini");
+  if(mini){mini.hidden=true;mini.classList.remove("show");}
+  document.querySelectorAll(".game-ghost").forEach(el=>el.remove());
+  document.getElementById("game-host-block").style.display="none";
+  document.getElementById("game-start-now").style.display="none";
+  document.getElementById("game-board").classList.remove("show");
+  document.getElementById("game-lobby").style.display="flex";
+  document.querySelectorAll(".js-game-turn").forEach(el=>{el.hidden=true;el.textContent="";});
+  document.querySelectorAll(".card").forEach(c=>{
+    c.style.display="";
+    c.classList.remove("game-fixed");
+  });
+  if(/#jeu=/i.test(location.hash)) history.replaceState(null,"",location.pathname+location.search);
+  const saved=readSave();
+  if(hasProgress(saved)) restore(saved);
+  else build();
+}
+function lobbyNames(){return (game.lobby||[]).map(p=>p.name).join(", ");}
+function refreshHostWait(){
+  const n=(game.lobby||[]).length;
+  const need=game.seatsTarget;
+  document.getElementById("game-wait").textContent=n+" / "+need+" joueurs — "+lobbyNames()+" · "+cardsPerPlayer(need)+" cartes chacun si vous êtes "+need+".";
+  document.getElementById("game-start-now").style.display=n>=2&&!game.state?"inline-flex":"none";
+}
+function broadcast(msg){
+  (game.conns||[]).forEach(c=>{if(c.open) c.send(msg);});
+}
+function sendState(){if(game.state) broadcast({type:"state",state:game.state});}
+function myShownId(){
+  if(selectedCardId&&myHand().indexOf(selectedCardId)>=0) return selectedCardId;
+  const cards=unplacedCards();
+  return cards.length?cards[0].dataset.id:null;
+}
+function publishIntent(){
+  if(skipSave||!game.state||game.state.ended||!game.myId||game.awaitingSync) return;
+  const shown=myShownId();
+  if(!game.state.shown) game.state.shown={};
+  game.state.shown[game.myId]=shown;
+  const canDraft=isMyTurn()&&!game.awaitingSync;
+  if(canDraft) game.state.draft=gameDraft?{by:game.myId,id:gameDraft.id,date:String(gameDraft.date)}:null;
+  const payload={type:"intent",shown:game.role==="host"?game.state.shown:shown,playSeq:game.state.playSeq||0};
+  if(canDraft) payload.draft=game.state.draft;
+  if(game.role==="host"){
+    payload.shown=game.state.shown;
+    payload.draft=game.state.draft||null;
+    broadcast(payload);
+    paintRemoteIntent();
+  }else if(game.conn&&game.conn.open){
+    game.conn.send(payload);
+  }
+}
+function applyIntentMsg(fromId,msg){
+  if(!game.state||!msg) return;
+  if(!game.state.shown) game.state.shown={};
+  if(msg.shown&&typeof msg.shown==="object"&&!Array.isArray(msg.shown)){
+    Object.keys(msg.shown).forEach(id=>{game.state.shown[id]=msg.shown[id];});
+  }else if(fromId&&typeof msg.shown==="string"){
+    game.state.shown[fromId]=msg.shown;
+  }
+  const seq=game.state.playSeq||0;
+  if("draft" in msg&&(msg.playSeq==null||msg.playSeq===seq)){
+    const incoming=msg.draft||null;
+    const fromTurn=!fromId||fromId===game.state.turn;
+    if(fromTurn&&(!incoming||incoming.by===game.state.turn)) game.state.draft=incoming;
+  }
+  if(game.role==="host") broadcast({type:"intent",shown:game.state.shown,draft:game.state.draft||null,playSeq:seq});
+  paintRemoteIntent();
+  updateGameTurn();
+}
+function paintRemoteIntent(){
+  document.querySelectorAll(".game-ghost").forEach(el=>el.remove());
+  const mini=document.getElementById("game-opp-mini");
+  const img=mini&&mini.querySelector("img");
+  const st=game.state;
+  if(!st||st.ended||!mini){
+    if(mini){mini.hidden=true;mini.classList.remove("show");}
+    return;
+  }
+  const turnId=st.turn;
+  const shown=st.shown&&st.shown[turnId];
+  const ev=shown&&evById(shown);
+  if(!isMyTurn()&&ev){
+    mini.hidden=false;
+    mini.classList.add("show");
+    if(img) img.src=ev.img;
+  }else{
+    mini.hidden=true;
+    mini.classList.remove("show");
+  }
+  if(!isMyTurn()&&st.draft&&st.draft.by===turnId&&st.draft.id&&st.draft.date&&st.draft.date!=="park"){
+    const drop=document.querySelector('.drop-zone[data-date="'+st.draft.date+'"]');
+    const evd=evById(st.draft.id);
+    if(drop&&evd){
+      const ghost=document.createElement("div");
+      ghost.className="card game-ghost placed";
+      ghost.innerHTML='<div class="card-top">?</div><img alt="" src="'+evd.img+'">';
+      drop.appendChild(ghost);
+    }
+  }
+}
+function sendLobby(){
+  broadcast({type:"lobby",code:game.code,target:game.seatsTarget,players:game.lobby.map(p=>({id:p.id,name:p.name}))});
+}
+function dealState(){
+  const ids=events.map(e=>e.id);
+  for(let i=ids.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [ids[i],ids[j]]=[ids[j],ids[i]];
+  }
+  const n=game.lobby.length;
+  const each=cardsPerPlayer(n);
+  const players=game.lobby.map(p=>({id:p.id,name:p.name,hand:ids.splice(0,each)}));
+  const center=[ids.shift()];
+  return {
+    players,
+    pile:ids,
+    center,
+    centerBy:[null],
+    turn:players[0].id,
+    lastMsg:"Première carte posée. "+players[0].name+" commence. "+each+" cartes chacun.",
+    ended:false,
+    winners:[],
+    roundStart:players[0].id,
+    shown:{},
+    draft:null,
+    playSeq:0
+  };
+}
+function beginDeal(){
+  const unique=new Set((game.lobby||[]).map(p=>p.id).filter(Boolean));
+  if(game.state||unique.size<2) return;
+  game.state=dealState();
+  sendState();
+  renderGame();
+}
+function me(){return game.state&&game.state.players.find(p=>p.id===game.myId);}
+function myHand(){const p=me();return p&&p.hand?p.hand.slice():[];}
+function isMyTurn(){return game.state&&!game.state.ended&&!game.awaitingSync&&!!me()&&game.state.turn===game.myId;}
+function pickLine(list){return list[Math.floor(Math.random()*list.length)];}
+function finishRound(st){
+  const min=Math.min.apply(null,st.players.map(p=>p.hand.length));
+  if(min>0) return;
+  st.ended=true;
+  st.winners=st.players.filter(p=>p.hand.length===min).map(p=>p.id);
+  const names=st.players.filter(p=>st.winners.indexOf(p.id)>=0).map(p=>p.name);
+  st.lastMsg=st.winners.length>1
+    ?"Fin du tour : égalité entre "+names.join(" et ")+"."
+    :"Fin du tour : "+names[0]+" l’emporte.";
+}
+function endSpeech(){
+  const st=game.state;
+  if(!st||!st.ended) return "";
+  if(game.endLine) return game.endLine;
+  const self=me();
+  const counts=st.players.map(p=>p.hand.length);
+  const min=Math.min.apply(null,counts);
+  const my=self?self.hand.length:min;
+  const others=st.players.filter(p=>p.id!==game.myId).map(p=>p.hand.length);
+  const bestOther=others.length?Math.min.apply(null,others):min;
+  const iWon=st.winners.indexOf(game.myId)>=0;
+  const tied=iWon&&st.winners.length>1;
+  const margin=tied?0:(iWon?bestOther-my:my-min);
+  let line;
+  if(tied){
+    line=pickLine([
+      "Égalité ! Même tempo, même honneur. Bravo à vous.",
+      "Match nul scientifique : personne n’a perdu, tout le monde a avancé. Bravo !",
+      "Bravo ! Vous avez fini main dans la main sur la frise.",
+      "Pile au même instant : l’histoire des cellules vous départage… en vous félicitant tous."
+    ]);
+  }else if(iWon&&margin<=1){
+    line="Ça passe, de justesse… Mais ça passe quand même, bravo !";
+  }else if(iWon&&margin===2){
+    line=pickLine([
+      "Bravo ! Une belle avance, nette sans être écrasante.",
+      "Bien joué : tu as su garder le rythme jusqu’au bout. Bravo !",
+      "Deux cartes d’écart : assez pour sourire, pas assez pour se vanter. Bravo !"
+    ]);
+  }else if(iWon){
+    line=pickLine([
+      "Bravo ! Une victoire propre et sans bavure.",
+      "Du virus à la colonie, tout est à sa place. Bravo !",
+      "Maîtrise totale de l’échelle de tailles. Bravo !"
+    ]);
+  }else if(margin<=1){
+    line=pickLine([
+      "Râté pour cette fois, mais c’était tout près. La prochaine sera la bonne.",
+      "Presque ! Une carte de trop, et pourtant quel match.",
+      "Râté pour cette fois, mais tu as fait trembler le vainqueur jusqu’à la dernière carte."
+    ]);
+  }else if(margin===2){
+    line=pickLine([
+      "Râté pour cette fois, mais tu as tenu la distance. Encore une partie ?",
+      "Pas cette fois. L’échelle de tailles attend ta revanche.",
+      "Deux cartes d’écart : rien de grave, juste une revanche à prendre."
+    ]);
+  }else{
+    line="Bon, ça ne l’a pas fait pour cette fois, mais on ne peut pas toujours gagner !";
+  }
+  game.endLine=line;
+  return line;
+}
+function cardFits(cardId,slot){
+  const d=evDate(cardId);
+  const left=slot===0?-Infinity:evDate(game.state.center[slot-1]);
+  const right=slot>=game.state.center.length?Infinity:evDate(game.state.center[slot]);
+  return d>=left&&d<=right;
+}
+function applyPlace(playerId,cardId,slot,chosenDate){
+  const st=game.state;
+  if(!st||st.ended||st.turn!==playerId) return false;
+  const pl=st.players.find(p=>p.id===playerId);
+  if(!pl) return false;
+  const i=pl.hand.indexOf(cardId);
+  if(i<0||slot<0||slot>st.center.length) return false;
+  const exact=Number(chosenDate);
+  const ok=Number.isFinite(exact)&&evDate(cardId)===exact;
+  let drawn=null;
+  pl.hand.splice(i,1);
+  if(ok){
+    st.center.splice(slot,0,cardId);
+    if(!st.centerBy) st.centerBy=st.center.map(()=>null);
+    st.centerBy.splice(slot,0,playerId);
+    st.lastResult={ok:true,by:playerId,cardId};
+    st.lastMsg=pl.name+" a bien placé une carte.";
+    if(!pl.hand.length) st.lastMsg=pl.name+" n’a plus de cartes. On termine le tour…";
+    if(playerId===game.myId) game.localError="";
+  }else{
+    if(!st.pile) st.pile=[];
+    if(st.pile.length){
+      drawn=st.pile.shift();
+      pl.hand.push(drawn);
+      st.pile.push(cardId);
+    }else{
+      drawn=cardId;
+      pl.hand.push(cardId);
+    }
+    st.lastResult={ok:false,by:playerId,cardId,drawn};
+    st.lastMsg=pl.name+" s’est trompé : la carte retourne à la pioche.";
+    if(playerId===game.myId) game.localError=drawn===cardId?"Mauvais emplacement. La pioche est vide : tu récupères la même carte.":"Mauvais emplacement. Tu pioches une autre carte.";
+  }
+  st.draft=null;
+  st.playSeq=(st.playSeq||0)+1;
+  if(!st.shown) st.shown={};
+  if(ok) delete st.shown[playerId];
+  else if(drawn) st.shown[playerId]=drawn;
+  const idx=st.players.findIndex(p=>p.id===playerId);
+  st.turn=st.players[(idx+1)%st.players.length].id;
+  if(st.turn===st.roundStart) finishRound(st);
+  return true;
+}
+function yearLabel(d){return binLabel(d,false);}
+function gcard(id,showDate,selectable){
+  const e=evById(id);
+  const el=document.createElement("div");
+  el.className="gcard"+(game.selected===id?" sel":"");
+  el.innerHTML="<img alt=\"\" src=\""+e.img+"\"><div class=\"gy\">"+(showDate?yearLabel(e.date):"?")+"</div>";
+  if(selectable) el.onclick=()=>{game.selected=id;renderGame();};
+  return el;
+}
+function renderLobbyInfo(info){
+  const n=info.players.length;
+  document.getElementById("game-join-wait").textContent="Salle "+info.code+" : "+n+" / "+info.target+" — "+info.players.map(p=>p.name).join(", ")+".";
+}
+function slotForDate(date){
+  const center=game.state.center;
+  for(let i=0;i<center.length;i++){
+    if(date<=evDate(center[i])) return i;
+  }
+  return center.length;
+}
+function clearGameDraft(){
+  gameDraft=null;
+  gameDraftUndo=[];
+  gameDraftRedo=[];
+  updateUndoButtons();
+}
+function sweepPendingCards(keepId){
+  document.querySelectorAll(".card.game-pending").forEach(c=>{
+    if(keepId&&c.dataset.id===keepId) return;
+    returnDraftCard(c.dataset.id);
+  });
+}
+function returnDraftCard(id){
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(!card) return;
+  card.classList.remove("game-pending","placed","game-fixed");
+  deck.appendChild(card);
+  selectedCardId=id;
+}
+function previewGamePlace(id,date){
+  if(!isMyTurn()||game.state.ended) return;
+  if(myHand().indexOf(id)<0) return;
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(!card||card.classList.contains("game-fixed")) return;
+  if(gameDraft&&gameDraft.id!==id){
+    returnDraftCard(gameDraft.id);
+    gameDraftUndo=[];
+    gameDraftRedo=[];
+  }
+  sweepPendingCards(id);
+  const from=gameDraft&&gameDraft.id===id?gameDraft.date:"park";
+  if(from===date) return;
+  if(date==="park"){
+    returnDraftCard(id);
+    gameDraftUndo.push({id,from,to:"park"});
+    gameDraft=null;
+  }else{
+    const drop=document.querySelector('.drop-zone[data-date="'+date+'"]');
+    if(!drop) return;
+    drop.appendChild(card);
+    card.classList.add("placed","game-pending");
+    card.classList.remove("game-hidden");
+    card.draggable=true;
+    gameDraft={id,date:String(date)};
+    gameDraftUndo.push({id,from,to:String(date)});
+  }
+  gameDraftRedo=[];
+  updateUndoButtons();
+  updatePhoneDeck();
+  updateGameTurn();
+  publishIntent();
+}
+function applyDraftStep(id,date){
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  if(!card) return;
+  if(date==="park"){
+    returnDraftCard(id);
+    gameDraft=null;
+  }else{
+    const drop=document.querySelector('.drop-zone[data-date="'+date+'"]');
+    if(!drop) return;
+    drop.appendChild(card);
+    card.classList.add("placed","game-pending");
+    gameDraft={id,date:String(date)};
+  }
+  updatePhoneDeck();
+  updateUndoButtons();
+  updateGameTurn();
+  publishIntent();
+}
+function gameUndoDraft(){
+  const step=gameDraftUndo.pop();
+  if(!step) return;
+  gameDraftRedo.push(step);
+  applyDraftStep(step.id,step.from);
+}
+function gameRedoDraft(){
+  const step=gameDraftRedo.pop();
+  if(!step) return;
+  gameDraftUndo.push(step);
+  applyDraftStep(step.id,step.to);
+}
+function validateGameDraft(){
+  if(!gameDraft||!isMyTurn()) return;
+  const id=gameDraft.id,date=gameDraft.date;
+  sweepPendingCards(id);
+  clearGameDraft();
+  tryPlaceGame(id,slotForDate(Number(date)),date);
+}
+function tryPlaceGame(cardId,slot,chosenDate){
+  if(!isMyTurn()||game.state.ended) return;
+  if(myHand().indexOf(cardId)<0) return;
+  if(!Number.isFinite(Number(chosenDate))){
+    game.localError="Mauvais emplacement. Tu pioches une autre carte.";
+    updateGameTurn();
+    return;
+  }
+  game.localError="";
+  if(game.role==="host"){
+    if(!applyPlace(game.myId,cardId,slot,chosenDate)) return;
+    sendState();
+    renderGame();
+  }else if(game.conn&&game.conn.open){
+    game.awaitingSync=true;
+    game.conn.send({type:"place",cardId,slot,date:chosenDate});
+    updateGameTurn();
+  }else{
+    game.localError="Erreur de connexion. Réessaie de valider.";
+    updateGameTurn();
+  }
+}
+function updateGameTurn(){
+  const st=game.state;
+  let text="",cls="game-turn js-game-turn";
+  if(!st) text="";
+  else if(st.ended) text=endSpeech()||st.lastMsg;
+  else if(game.awaitingSync){text="Placement envoyé…";cls+=" wait";}
+  else if(game.localError){text=game.localError;cls+=" miss";}
+  else if(isMyTurn()&&gameDraft){text="Carte placée, cliquer sur « valider » (Entrée)";cls+=" ready";}
+  else if(isMyTurn()){text="Choisis ta carte puis clique un emplacement";cls+=" mine";}
+  else if(st.draft&&st.draft.by===st.turn&&st.draft.by!==game.myId&&st.draft.date&&st.draft.date!=="park"){
+    text="Dans l'attente de validation par joueur adverse";
+    cls+=" wait";
+  }else if(st.lastResult&&st.lastResult.ok===false&&st.lastResult.by===game.myId){
+    text="Mauvais emplacement. Tu pioches une autre carte.";
+    cls+=" miss";
+  }else{
+    const current=st.players.find(p=>p.id===st.turn);
+    text=st.players.length>2?("Tour de "+(current?current.name:"l’adversaire")):"Tour de l’adversaire";
+    cls+=" wait";
+  }
+  document.querySelectorAll(".js-game-turn").forEach(el=>{
+    el.className=cls;
+    el.textContent=text;
+    el.hidden=!text;
+  });
+}
+function syncGameBoard(){
+  if(!game.state) return;
+  skipSave=true;
+  clearGameDraft();
+  document.querySelectorAll(".game-ghost").forEach(el=>el.remove());
+  updateToggleBank();
+  const mine=new Set(myHand());
+  const onTable=new Set(game.state.center);
+  document.querySelectorAll("#deck .card, .drop-zone .card").forEach(c=>{
+    const id=c.dataset.id;
+    c.classList.remove("game-hidden","game-pending","game-fixed","game-start","game-p0","game-p1","game-p2","game-p3","game-p4","game-p5","placed","correct","wrong","locked","phone-current","phone-selected");
+    c.style.display="";
+    if(onTable.has(id)){
+      const drop=document.querySelector('.drop-zone[data-date="'+evDate(id)+'"]');
+      if(drop) drop.appendChild(c);
+      c.classList.add("placed","game-fixed");
+      const idx=game.state.center.indexOf(id);
+      const by=(game.state.centerBy||[])[idx];
+      if(!by) c.classList.add("game-start");
+      else{
+        const pi=game.state.players.findIndex(p=>p.id===by);
+        c.classList.add("game-p"+(pi<0?0:pi));
+      }
+      c.draggable=false;
+    }else if(mine.has(id)){
+      deck.appendChild(c);
+      c.draggable=Boolean(isMyTurn()&&!game.state.ended);
+      const drawn=game.state.lastResult&&game.state.lastResult.ok===false&&game.state.lastResult.by===game.myId?game.state.lastResult.drawn:null;
+      if(drawn===id){
+        c.classList.add("wrong");
+        setTimeout(()=>c.classList.remove("wrong"),900);
+      }
+    }else{
+      deck.appendChild(c);
+      c.classList.add("game-hidden");
+      c.draggable=false;
+    }
+  });
+  const drawn=game.state.lastResult&&game.state.lastResult.ok===false&&mine.has(game.state.lastResult.drawn)?game.state.lastResult.drawn:null;
+  if(drawn) selectedCardId=drawn;
+  else if(!mine.has(selectedCardId)) selectedCardId=null;
+  updatePhoneDeck(selectedCardId);
+  skipSave=false;
+  paintRemoteIntent();
+}
+function renderGame(){
+  game.awaitingSync=false;
+  if(game.state&&game.state.turn!==game.myId) game.localError="";
+  const lobby=document.getElementById("game-lobby");
+  const board=document.getElementById("game-board");
+  if(!game.state){
+    document.body.classList.remove("game-play");
+    lobby.style.display="flex";
+    board.classList.remove("show");
+    return;
+  }
+  document.body.classList.add("game-on","game-play");
+  lobby.style.display="none";
+  board.classList.remove("show");
+  updateGameTurn();
+  syncGameBoard();
+  syncPhone();
+}
+function hostAddConn(conn){
+  conn.on("open",()=>{
+    if(game.state||game.lobby.length>=game.seatsTarget){
+      conn.send({type:"full"});
+      conn.close();
+      return;
+    }
+    game.conns.push(conn);
+    game.lobby.push({id:conn.peer,name:"Joueur "+(game.lobby.length+1)});
+    sendLobby();
+    refreshHostWait();
+    if(game.lobby.length>=game.seatsTarget) beginDeal();
+  });
+  conn.on("data",msg=>{
+    if(!msg||typeof msg!=="object") return;
+    if(msg.type==="place"){
+      applyPlace(conn.peer,msg.cardId,msg.slot,msg.date);
+      sendState();
+      renderGame();
+    }
+    if(msg.type==="intent") applyIntentMsg(conn.peer,msg);
+  });
+  conn.on("close",()=>{
+    game.conns=game.conns.filter(c=>c!==conn);
+    if(!game.state){
+      game.lobby=game.lobby.filter(p=>p.id!==conn.peer);
+      game.lobby.forEach((p,i)=>{p.name="Joueur "+(i+1);});
+      sendLobby();
+      refreshHostWait();
+    }
+  });
+}
+function startHost(){
+  if(typeof Peer==="undefined"){alert("Connexion indisponible. Vérifie Internet.");return;}
+  const target=game.seatsTarget||2;
+  resetGameNet();
+  game.role="host";
+  game.seatsTarget=target;
+  game.code=randCode();
+  document.getElementById("game-host-block").style.display="block";
+  document.getElementById("game-code-big").textContent=game.code;
+  document.getElementById("game-share").value=shareUrl(game.code);
+  paintJoinQr(game.code);
+  document.getElementById("game-wait").textContent="Ouverture de la salle…";
+  game.peer=new Peer(PEER_PREFIX+game.code);
+  game.peer.on("open",id=>{
+    game.myId=id;
+    game.lobby=[{id:id,name:"Joueur 1"}];
+    paintJoinQr(game.code);
+    refreshHostWait();
+  });
+  game.peer.on("error",()=>{
+    document.getElementById("game-wait").textContent="Erreur de connexion. Réessaie de créer une partie.";
+  });
+  game.peer.on("connection",hostAddConn);
+}
+function startGuest(code){
+  code=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,4);
+  if(code.length!==4){alert("Entre le code à 4 caractères affiché chez l’hôte.");return;}
+  if(typeof Peer==="undefined"){alert("Connexion indisponible. Vérifie Internet.");return;}
+  resetGameNet();
+  game.role="guest";
+  game.code=code;
+  document.getElementById("game-join-wait").textContent="Connexion…";
+  game.peer=new Peer();
+  game.peer.on("open",id=>{
+    game.myId=id;
+    const conn=game.peer.connect(PEER_PREFIX+code);
+    game.conn=conn;
+    conn.on("data",msg=>{
+      if(!msg||typeof msg!=="object") return;
+      if(msg.type==="full"){
+        document.getElementById("game-join-wait").textContent="Salle complète.";
+        return;
+      }
+      if(msg.type==="lobby") renderLobbyInfo(msg);
+      if(msg.type==="state"){game.state=msg.state;renderGame();}
+      if(msg.type==="intent") applyIntentMsg(null,msg);
+    });
+    conn.on("open",()=>{
+      document.getElementById("game-join-wait").textContent="Connecté, en attente des autres joueurs…";
+    });
+    conn.on("close",()=>{
+      if(!game.state) document.getElementById("game-join-wait").textContent="Déconnecté.";
+    });
+  });
+  game.peer.on("error",()=>{
+    alert("Impossible de rejoindre. Vérifie le code et qu’un hôte a bien créé la partie.");
+  });
+}
+function copyText(text,btn){
+  const done=()=>{
+    const old=btn.textContent;
+    btn.textContent="Copié !";
+    setTimeout(()=>{btn.textContent=old;},1200);
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>{});
+  }
+}
+document.getElementById("openGame").onclick=openGameLobby;
+document.getElementById("game-close").onclick=closeGame;
+document.getElementById("game-quit-play").onclick=closeGame;
+document.getElementById("game-create").onclick=startHost;
+document.getElementById("game-start-now").onclick=beginDeal;
+document.getElementById("game-join").onclick=()=>startGuest(document.getElementById("game-join-code").value);
+document.getElementById("game-scan-qr").onclick=()=>document.getElementById("game-qr-file").click();
+document.getElementById("game-qr-file").addEventListener("change",e=>{
+  const file=e.target.files&&e.target.files[0];
+  e.target.value="";
+  joinFromQrFile(file);
+});
+document.getElementById("game-copy").onclick=()=>copyText(game.code,document.getElementById("game-copy"));
+document.getElementById("game-copy-link").onclick=()=>copyText(shareUrl(game.code),document.getElementById("game-copy-link"));
+document.getElementById("game-join-code").addEventListener("keydown",e=>{
+  if(e.key==="Enter") startGuest(e.target.value);
+});
+document.getElementById("game-seat-pick").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-n]");
+  if(!btn||game.state) return;
+  game.seatsTarget=Number(btn.dataset.n);
+  document.querySelectorAll("#game-seat-pick [data-n]").forEach(b=>b.classList.toggle("on",Number(b.dataset.n)===game.seatsTarget));
+  if(game.role==="host"&&game.lobby.length){
+    sendLobby();
+    refreshHostWait();
+    if(game.lobby.length>=game.seatsTarget) beginDeal();
+  }
+});
+const hashGame=location.hash.match(/#jeu=([A-Za-z0-9]{4})/i);
+if(hashGame){
+  openGameLobby();
+  startGuest(hashGame[1]);
+}
+</script>
+<div id="hint-pop" hidden><strong>Repère de taille</strong><p></p></div>
+</body>
+</html>
