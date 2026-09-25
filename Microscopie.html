@@ -330,6 +330,24 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
   cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
 .btn-primary{background:var(--navy);color:#fff}
 .btn-primary:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-activity{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,#ffe4cc 0%,#ff8c42 48%,#e25b12 100%);
+  color:#4a1800;font-weight:800;letter-spacing:.01em;
+  padding:11px 18px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 2px 0 #c2410c,0 8px 18px rgba(234,88,12,.32)
+}
+.btn-activity:hover{
+  background:linear-gradient(180deg,#fff0e0 0%,#ff9b55 48%,#ea6a1c 100%);
+  transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 0 #c2410c,0 10px 20px rgba(234,88,12,.4)
+}
+.btn-activity:active{
+  transform:translateY(1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 1px 0 #c2410c
+}
+.btn-activity svg{width:18px;height:18px;flex-shrink:0}
 .btn-secondary{background:var(--bg);color:var(--text);border:1.5px solid #d1d5db}
 .btn-audio[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
 .card-listen{
@@ -409,6 +427,8 @@ body.phone .tl-date-col{cursor:pointer;padding:4px 0 2px}
 body.phone .phone-park .tl-date{color:var(--gold)}
 body.phone .controls{gap:6px;padding:0 6px}
 body.phone .controls .btn{padding:6px 9px;font-size:.7rem}
+body.phone #openActivity{padding:7px 11px;font-size:.72rem;gap:5px;font-weight:800}
+body.phone #openActivity svg{width:14px;height:14px}
 body.phone .hint-count,body.phone .score{padding:6px 9px;font-size:.7rem;margin-left:0}
 .print-copy .phone-park{display:none!important}
 @media (orientation:portrait) and (pointer:coarse),
@@ -700,7 +720,7 @@ body.game-play .drop-zone .card.game-start{z-index:3}
 <div class="rotate-tip" id="rotate-tip">Tourne ton téléphone ou ta tablette <strong>en paysage</strong> pour voir la frise et placer les cartes.</div>
 <main>
   <div class="tip">
-    <strong>Comment jouer :</strong> Place chaque carte sur l’échelle, du plus petit au plus grand. Les objets d’un même intervalle sont considérés comme égaux : pas besoin d’un classement au nanomètre près. Les tailles précises et les barres d’échelle restent masquées jusqu’à la correction ou au retournement de la carte. Le <strong>?</strong> donne un repère biologique (virus, bactérie, cellule…). L’activité microscopes s’ouvre avec le bouton dédié.
+    <strong>Comment jouer :</strong> Place chaque carte sur l’échelle, du plus petit au plus grand. Les objets d’un même intervalle sont considérés comme égaux : pas besoin d’un classement au nanomètre près. Les tailles précises et les barres d’échelle restent masquées jusqu’à la correction ou au retournement de la carte. Le <strong>?</strong> donne un repère biologique (virus, bactérie, cellule…). Ensuite, clique sur <strong>Identifie le type de microscopie</strong>.
   </div>
 
   <div class="bank-wrap">
@@ -753,7 +773,10 @@ body.game-play .drop-zone .card.game-start{z-index:3}
     <button class="btn btn-secondary" id="reset">Recommencer</button>
     <button class="btn btn-secondary" id="printTl" type="button">Imprimer mes réponses</button>
     <button class="btn btn-secondary btn-audio" id="audioDesc" type="button" aria-pressed="false" title="Activer la description audio des cartes">Description audio</button>
-    <button class="btn btn-primary" id="openActivity" type="button">Types de microscopie</button>
+    <button class="btn btn-activity" id="openActivity" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v4"/><circle cx="9" cy="11" r="4"/><path d="M9 15v4h8M5 21h8"/><path d="m14 8 5 4"/></svg>
+      Identifie le type de microscopie
+    </button>
     <button class="btn btn-primary" id="openGame" type="button">Mode jeu</button>
     <div class="hint-count" id="hintCount">Indices : 0 (échelle 0 · microscopes 0)</div>
     <div class="score" id="score">0 / 0</div>
