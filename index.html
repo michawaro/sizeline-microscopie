@@ -261,9 +261,9 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 .card-size{font-weight:800;font-size:.78rem;margin-bottom:6px;color:#f6d58a}
 .card-bar{font-size:.62rem;line-height:1.35;color:#e8eef8}
 .card-hint-btn,.card-flip-btn{
-  position:absolute;z-index:8;width:22px;height:22px;border:none;border-radius:50%;
+  position:absolute;z-index:12;width:22px;height:22px;border:none;border-radius:50%;
   background:rgba(26,53,102,.92);color:#fff;cursor:pointer;font-weight:800;line-height:22px;padding:0;
-  pointer-events:auto
+  pointer-events:auto;-webkit-user-drag:none
 }
 .card-hint-btn{top:4px;right:4px;font-size:.85rem}
 .card-flip-btn{top:4px;left:4px;right:auto;bottom:auto;font-size:.8rem}
@@ -1022,13 +1022,20 @@ function makeCard(e){
   el.querySelector(".card-hint-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();showSizeHint(ev.currentTarget,e);});
   el.querySelector(".card-flip-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();el.classList.toggle("flipped");});
   el.addEventListener("pointerdown",ev=>{
+    if(ev.target.closest && ev.target.closest(".card-mark, .card-listen, .card-hint-btn, .card-flip-btn")){
+      ev.stopPropagation();
+      return;
+    }
     if(ev.pointerType==="mouse") el.classList.add("grabbing");
   });
   el.addEventListener("pointerup",()=>el.classList.remove("grabbing"));
   el.addEventListener("pointercancel",()=>el.classList.remove("grabbing"));
   el.addEventListener("dragstart",ev=>{
     if(isCardLocked(el)){ev.preventDefault();return;}
-    if(ev.target.closest && ev.target.closest(".card-mark, .card-listen, .card-hint-btn, .card-flip-btn")) return;
+    if(ev.target.closest && ev.target.closest(".card-mark, .card-listen, .card-hint-btn, .card-flip-btn")){
+      ev.preventDefault();
+      return;
+    }
     dragMark=null;dragMarkFrom=null;
     dragId=e.id;
     el.classList.add("dragging","grabbing");
