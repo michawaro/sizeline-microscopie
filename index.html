@@ -25,7 +25,19 @@ header svg{width:42px;height:42px;flex-shrink:0}
 header h1{font-family:'Playfair Display',serif;font-size:1.45rem;line-height:1.2}
 header p{font-size:.8rem;opacity:.75;margin-top:3px}
 .badge{background:var(--gold);color:#7a4800;font-size:.7rem;font-weight:600;
-  padding:2px 10px;border-radius:20px;white-space:nowrap;margin-left:auto}
+  padding:2px 10px;border-radius:20px;white-space:nowrap}
+.train-link{
+  margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,#fff3cc 0%,#f0c14a 55%,#e0a020 100%);
+  color:#5a3208;text-decoration:none;font-weight:800;font-size:.82rem;
+  padding:8px 16px 8px 12px;border-radius:999px;letter-spacing:.02em;
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 0 #b47812,0 8px 18px rgba(0,0,0,.22);
+  transition:transform .15s,box-shadow .15s
+}
+.train-link svg{width:18px;height:18px;flex-shrink:0}
+.train-link:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 0 #b47812,0 10px 20px rgba(0,0,0,.28)}
+.train-link:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 1px 0 #b47812}
 
 main{padding:12px 18px 8px;width:100%;max-width:none;flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}
 
@@ -175,7 +187,9 @@ body.activity-on .card.markable.mark-bad,
 .principle[data-n="1"] b{background:#1a3566}
 .principle[data-n="2"] b{background:#c47a08}
 .principle[data-n="3"] b{background:#1d8a4a}
-.principle span{font-size:.78rem;color:var(--muted);line-height:1.35;flex:1}
+.principle .principle-txt{flex:1;min-width:0}
+.principle .principle-txt strong{display:block;font-size:.82rem;color:var(--navy);margin-bottom:3px;font-weight:700}
+.principle span{font-size:.76rem;color:var(--muted);line-height:1.35}
 .marker-bank{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:40px;
   padding:8px;border-radius:8px;background:#f3f6fb}
 .marker-bank.drag-over{outline:2px dashed var(--navy2);background:#e8f0fb}
@@ -320,6 +334,8 @@ body.phone .phone-nav{display:flex}
 body.phone .tip,body.phone .message{display:none}
 body.phone header{padding:4px 8px}
 body.phone header p,body.phone header .badge{display:none}
+body.phone .train-link{padding:5px 10px;font-size:.68rem;gap:5px}
+body.phone .train-link svg{width:14px;height:14px}
 body.phone header h1{font-size:.95rem}
 body.phone header svg{width:24px;height:24px}
 body.phone main{padding:4px 0;gap:4px}
@@ -540,10 +556,10 @@ body.game-play .drop-zone .card.game-start{z-index:3}
       <button class="btn btn-secondary" id="closeActivity" type="button">Fermer</button>
     </div>
     <div class="principles">
-      <div class="principle" data-n="1"><b>MO</b><span>Microscopie optique classique.</span></div>
-      <div class="principle" data-n="2"><b>HR</b><span>Microscopie optique à haute résolution.</span></div>
-      <div class="principle" data-n="3"><b>MET</b><span>Microscopie électronique à transmission.</span></div>
-      <div class="principle" data-n="4"><b>MEB</b><span>Microscopie électronique à balayage.</span></div>
+      <div class="principle" data-n="1"><b>MO</b><div class="principle-txt"><strong>Optique classique</strong><span>Lumière visible. On voit cellules, noyaux et tissus, souvent en couleurs. Limite de résolution ≈ 0,2 µm : une bactérie apparaît, un virus non.</span></div></div>
+      <div class="principle" data-n="2"><b>HR</b><div class="principle-txt"><strong>Optique haute résolution</strong><span>Toujours de la lumière, mais des techniques (confocale, super-résolution) dépassent la limite classique. Utile pour l’organisation de l’ADN dans le noyau.</span></div></div>
+      <div class="principle" data-n="3"><b>MET</b><div class="principle-txt"><strong>Électronique à transmission</strong><span>Faisceau d’électrons à travers une coupe très fine. Images 2D en noir et blanc, jusqu’au nanomètre : virus, membranes, ultrastructure.</span></div></div>
+      <div class="principle" data-n="4"><b>MEB</b><div class="principle-txt"><strong>Électronique à balayage</strong><span>Les électrons balaient la surface. On obtient le relief (aspect 3D) : pili, coques de diatomées, pollen. Pas l’intérieur de l’échantillon.</span></div></div>
     </div>
     <div class="bank-label" style="margin-bottom:8px">Vignettes à placer <span class="bank-count" id="mark-count">0</span></div>
     <div class="marker-bank" id="marker-bank"></div>
@@ -621,6 +637,10 @@ body.game-play .drop-zone .card.game-start{z-index:3}
     <h1>Size Line — Échelle de tailles</h1>
     <p>Classe les objets du plus petit au plus grand, par intervalles</p>
   </div>
+  <a class="train-link" href="https://view.genially.com/64ec4a8ef1e59f00197a32e3" target="_blank" rel="noopener noreferrer" title="S'entraîner sur Genially">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5V8.5z"/></svg>
+    S’entraîner
+  </a>
   <span class="badge">SVT · 1ère ESc</span>
   <span class="game-turn js-game-turn" hidden></span>
 </header>
