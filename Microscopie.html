@@ -90,7 +90,10 @@ main{padding:12px 18px 8px;width:100%;max-width:none;flex:1;display:flex;flex-di
   box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;overflow:visible}
 .bank-label{font-size:.78rem;font-weight:600;color:var(--navy);
   text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;
-  display:flex;align-items:center;gap:8px}
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bank-title{display:inline-flex;align-items:center;gap:8px}
+.bank-stats{display:flex;align-items:center;gap:8px;margin-left:auto;
+  text-transform:none;letter-spacing:0}
 .bank-count{background:var(--navy);color:#fff;border-radius:20px;
   padding:1px 8px;font-size:.7rem}
 #deck{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;
@@ -126,7 +129,8 @@ body.phone .card img{-webkit-touch-callout:none;-webkit-user-drag:none;pointer-e
     z-index:420;
     box-shadow:0 18px 44px rgba(26,53,102,.32)
   }
-  .activity-clone.mark-ok:hover,.activity-cards .card.mark-ok:hover{
+  .activity-clone.mark-ok:hover,.activity-cards .card.mark-ok:hover,
+  .drop-zone .card.correct:hover,.card.correct:hover{
     box-shadow:
       0 0 0 3px #fff,
       0 0 0 8px #22c55e,
@@ -286,8 +290,26 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 
 @media(max-width:900px){.principles{grid-template-columns:1fr}}
 
-.drop-zone .card.correct,.card.correct{border-color:var(--green)!important;background:#e6f7ee}
+.drop-zone .card.correct,.card.correct{
+  outline:none!important;
+  border-color:#0f9d58!important;
+  background:#edfbf3;
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 7px #22c55e,
+    0 0 18px 6px rgba(34,197,94,.55),
+    0 0 42px 12px rgba(16,185,129,.35)!important;
+  animation:haloOk 1.35s ease-in-out 2
+}
 .drop-zone .card.correct .card-top,.card.correct .card-top{background:var(--green)!important}
+.drop-zone .card.correct.zoomed,.card.correct.zoomed,
+.drop-zone .card.correct.hint-open,.card.correct.hint-open{
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 8px #22c55e,
+    0 0 24px 8px rgba(34,197,94,.6),
+    0 18px 44px rgba(16,185,129,.35)!important
+}
 .drop-zone .card.wrong,.card.wrong{border-color:var(--red2)!important;background:#fdecea;animation:shake .35s}
 .drop-zone .card.wrong .card-top,.card.wrong .card-top{background:var(--red2)!important}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -365,10 +387,10 @@ body.audio-desc .tl-date-col{cursor:pointer}
 .card.ptr-hold{visibility:hidden}
 .card.correct,.card.locked{cursor:default}
 .print-copy .card-listen{display:none!important}
-.hint-count{background:#fff;border:1.5px solid #c5d0e0;color:var(--navy);padding:10px 16px;border-radius:8px;
-  font-size:.82rem;font-weight:600;margin-left:auto;white-space:nowrap}
-.score{background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;
-  font-size:.88rem;font-weight:600;margin-left:0}
+.hint-count{background:#fff;border:1.5px solid #c5d0e0;color:var(--navy);padding:7px 14px;border-radius:12px;
+  font-size:.78rem;font-weight:600;white-space:nowrap}
+.score{background:var(--navy);color:#fff;padding:7px 14px;border-radius:12px;
+  font-size:.82rem;font-weight:700;white-space:nowrap}
 
 .message{margin-top:14px;padding:12px 16px;border-radius:10px;background:#fff;
   border:1px solid #dbe5f1;color:#334155;display:none;box-shadow:0 1px 4px rgba(0,0,0,.07)}
@@ -398,7 +420,8 @@ body.phone header h1{font-size:.95rem}
 body.phone header > svg{width:24px;height:24px}
 body.phone main{padding:4px 0;gap:4px}
 body.phone header{padding-left:8px;padding-right:8px}
-body.phone:not(.phone-all) .bank-wrap{display:none}
+body.phone:not(.phone-all) .bank-wrap{display:block;margin-bottom:4px;padding:6px 8px}
+body.phone:not(.phone-all) #deck{display:none}
 body.phone.phone-all .bank-wrap{display:block;margin-bottom:4px;padding:6px 8px}
 body.phone.phone-all #deck{max-height:36vh;overflow:auto}
 body.phone.phone-all .phone-park,body.phone.phone-all .tl-wrap{display:none}
@@ -725,7 +748,11 @@ body.game-play .drop-zone .card.game-start{z-index:3}
 
   <div class="bank-wrap">
     <div class="bank-label">
-      Cartes à placer <span class="bank-count" id="bank-count">0</span>
+      <span class="bank-title">Cartes à placer <span class="bank-count" id="bank-count">0</span></span>
+      <div class="bank-stats">
+        <div class="hint-count" id="hintCount">Indices : 0 (échelle 0 · microscopes 0)</div>
+        <div class="score" id="score">0 / 0</div>
+      </div>
     </div>
     <div id="deck"></div>
   </div>
@@ -778,8 +805,6 @@ body.game-play .drop-zone .card.game-start{z-index:3}
       Identifie le type de microscopie
     </button>
     <button class="btn btn-primary" id="openGame" type="button">Mode jeu</button>
-    <div class="hint-count" id="hintCount">Indices : 0 (échelle 0 · microscopes 0)</div>
-    <div class="score" id="score">0 / 0</div>
   </div>
   <p class="message" id="msg"></p>
   <div class="solution" id="solution"><h2>Correction</h2><ol id="solList"></ol></div>
