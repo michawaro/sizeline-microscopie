@@ -882,15 +882,23 @@ function refreshAxisLabels(){
   });
 }
 function revealCorrection(showKey){
-  document.body.classList.add("corrected");
   document.querySelectorAll(".drop-zone:not(#phone-park) .card").forEach(card=>{
     const ev=events.find(x=>x.id===card.dataset.id);
     const top=card.querySelector(".card-top");
-    if(ev&&top) top.textContent=ev.sizeLabel;
-    card.classList.add("size-revealed");
+    if(!top) return;
+    if(card.classList.contains("correct")&&ev){
+      top.textContent=ev.sizeLabel;
+      card.classList.add("size-revealed");
+    }else{
+      top.textContent="Carte";
+      card.classList.remove("size-revealed");
+    }
   });
-  refreshAxisLabels();
-  if(showKey) solution();
+  if(showKey){
+    document.body.classList.add("corrected");
+    refreshAxisLabels();
+    solution();
+  }
 }
 function keepZoomInView(card){
   if(!card||card.classList.contains("dragging")||card.classList.contains("grabbing")) return;
@@ -1287,6 +1295,14 @@ function restore(saved){
   Object.entries(saved.flags||{}).forEach(([id,flags])=>{
     const card=document.querySelector(`.card[data-id="${id}"]`);
     if(card) flags.forEach(c=>card.classList.add(c));
+  });
+  document.querySelectorAll(".drop-zone:not(#phone-park) .card.correct").forEach(card=>{
+    const ev=events.find(x=>x.id===card.dataset.id);
+    const top=card.querySelector(".card-top");
+    if(ev&&top){
+      top.textContent=ev.sizeLabel;
+      card.classList.add("size-revealed");
+    }
   });
   updateScore();
   hintsFrise=Number(saved.hintsFrise)||0;
@@ -1705,6 +1721,13 @@ function check(){
   syncCardLocks();
   saveState();
 }
+function returnMarkToBank(card){
+  const badge=card.querySelector(".card-mark");
+  if(!badge) return;
+  const n=badge.dataset.n;
+  badge.remove();
+  markerBank.appendChild(makeMarkChip(n));
+}
 function checkMarks(){
   let ok=0,total=Object.keys(PRINCIPLES).length;
   realCards().forEach(card=>{
@@ -1712,16 +1735,23 @@ function checkMarks(){
     const expected=PRINCIPLES[card.dataset.id];
     const badge=card.querySelector(".card-mark");
     if(!expected){
-      if(badge) card.classList.add("mark-bad");
+      if(badge){
+        card.classList.add("mark-bad");
+        returnMarkToBank(card);
+      }
       return;
     }
     if(badge && Number(badge.dataset.n)===expected){card.classList.add("mark-ok");ok++}
-    else card.classList.add("mark-bad");
+    else{
+      card.classList.add("mark-bad");
+      if(badge) returnMarkToBank(card);
+    }
   });
   const text=ok===total
     ?"Bravo : tu as associé chaque carte au bon type de microscope."
-    :`${ok} / ${total} associations correctes. Relis les quatre types de microscopie et corrige les cartes rouges.`;
+    :`${ok} / ${total} associations correctes. Les vignettes incorrectes sont revenues dans « Vignettes à placer ».`;
   showActivityMsg(text);
+  updateMarkCount();
   saveState();
   refreshActivityBoard();
 }
