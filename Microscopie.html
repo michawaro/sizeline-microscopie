@@ -164,8 +164,9 @@ body.phone .card img{-webkit-touch-callout:none;-webkit-user-drag:none;pointer-e
 }
 .card.dragging,.card.dragging:hover{opacity:.35}
 .card-top{color:#fff;font-size:.58rem;font-weight:600;letter-spacing:.4px;
-  text-transform:uppercase;padding:5px 6px;text-align:center;min-height:26px;
-  display:flex;align-items:center;justify-content:center;line-height:1.25;background:var(--navy)}
+  text-transform:uppercase;padding:3px 4px;text-align:center;min-height:26px;
+  display:flex;align-items:center;justify-content:space-between;gap:2px;line-height:1.25;background:var(--navy)}
+.card-top-label{flex:1;min-width:0;text-align:center;line-height:1.2}
 .card.size-revealed .card-top,.card.correct .card-top,.card.wrong .card-top,.card.flipped .card-top{
   text-transform:none;letter-spacing:.15px
 }
@@ -278,12 +279,18 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 .card-size{font-weight:800;font-size:.78rem;margin-bottom:6px;color:#f6d58a}
 .card-bar{font-size:.62rem;line-height:1.35;color:#e8eef8}
 .card-hint-btn,.card-flip-btn{
-  position:absolute;z-index:12;width:22px;height:22px;border:none;border-radius:50%;
-  background:rgba(26,53,102,.92);color:#fff;cursor:pointer;font-weight:800;line-height:22px;padding:0;
-  pointer-events:auto;-webkit-user-drag:none
+  position:static;z-index:12;width:20px;height:20px;border:none;border-radius:50%;
+  background:rgba(255,255,255,.18);color:#fff;cursor:pointer;font-weight:800;line-height:20px;padding:0;
+  pointer-events:auto;-webkit-user-drag:none;flex:0 0 auto
 }
-.card-hint-btn{top:4px;right:4px;font-size:.85rem}
-.card-flip-btn{top:4px;left:4px;right:auto;bottom:auto;font-size:.8rem}
+.card-hint-btn{font-size:.78rem}
+.card-flip-btn{font-size:.72rem}
+.card-mag-badge{
+  position:absolute;right:4px;bottom:4px;z-index:4;pointer-events:none;
+  background:rgba(26,53,102,.88);color:#fff;font-size:.5rem;font-weight:800;
+  letter-spacing:.02em;padding:1px 5px;border-radius:4px;line-height:1.3
+}
+.card.flipped .card-mag-badge{opacity:0}
 .card-listen{left:30px;right:auto;bottom:5px}
 #hint-pop{
   position:fixed;z-index:5000;max-width:260px;background:#fff;border:1.5px solid #d5deea;
@@ -356,9 +363,10 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 .tl-tick-col{flex:1 1 0;min-width:0;display:flex;justify-content:center}
 .tl-tick{width:2px;height:14px;background:var(--navy)}
 .tl-dates{display:flex;margin-top:4px;width:100%}
-.tl-date-col{flex:1 1 0;min-width:0;text-align:center}
-.tl-date{font-size:.62rem;font-weight:700;color:var(--navy);white-space:nowrap}
+.tl-date-col{flex:1 1 0;min-width:0;text-align:center;padding:0 2px 2px}
+.tl-date{font-size:.62rem;font-weight:700;color:var(--navy);white-space:normal;line-height:1.15}
 .tl-date.neg{color:var(--red)}
+.tl-date-range{display:block;margin-top:2px;font-size:.52rem;font-weight:650;color:var(--muted);line-height:1.2;white-space:normal}
 
 .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .btn{padding:10px 22px;border:none;border-radius:8px;font-size:.88rem;font-weight:600;
@@ -451,6 +459,7 @@ body.phone .tl-col,body.phone .tl-tick-col,body.phone .tl-date-col{
   flex:0 0 112px;min-width:112px;max-width:112px
 }
 body.phone .tl-date{font-size:.5rem}
+body.phone .tl-date-range{font-size:.42rem;margin-top:1px}
 body.phone .tl-label{margin-bottom:4px;gap:8px;padding:0 6px}
 body.phone .tl-label>svg,body.phone .tl-caption{display:none}
 body.phone .drop-zone{min-height:0;padding:0;gap:0;align-items:stretch;justify-content:stretch;border-radius:0}
@@ -459,7 +468,8 @@ body.phone .drop-zone .card,body.phone #phone-park .card{
 }
 body.phone .drop-zone .card .card-visual,body.phone #phone-park .card .card-visual{flex:1 1 auto;height:100%}
 body.phone .drop-zone .card .card-photo,body.phone #phone-park .card .card-photo{height:100%;flex:1 1 auto}
-body.phone .drop-zone .card-top{display:none}
+body.phone .drop-zone .card-top{display:flex;min-height:20px;padding:2px 3px;font-size:.5rem}
+body.phone .drop-zone .card-hint-btn,body.phone .drop-zone .card-flip-btn{width:18px;height:18px;line-height:18px}
 body.phone #phone-park{outline:2px dashed var(--gold);background:#fff8e8}
 body.phone .drop-zone.phone-target:not(#phone-park){background:#e8f0fb;border-color:var(--navy2)}
 body.phone .tl-date-col{cursor:pointer;padding:4px 0 2px}
@@ -640,11 +650,13 @@ body.printing .print-copy .card.print-placed .card-body{padding:3px 4px 4px;over
 body.printing .print-copy .card.print-placed .card-name{font-size:7pt;line-height:1.25;white-space:normal;overflow:visible;word-break:break-word}
 body.printing .print-copy .card-hint-btn,body.printing .print-copy .card-flip-btn,body.printing .print-copy .card-listen,
 body.printing .print-copy .card-scale-mask,body.printing .print-copy .card-verso{display:none!important}
+body.printing .print-copy .card-mag-badge{font-size:6pt;padding:0 3px;right:2px;bottom:2px}
 body.printing .print-copy .card-mark{
   position:absolute;top:-3mm;right:-2mm;width:7mm;height:7mm;font-size:7pt;
   cursor:default;print-color-adjust:exact;-webkit-print-color-adjust:exact
 }
 body.printing .print-copy .tl-date{font-size:8pt;text-transform:none;white-space:normal;overflow:visible;line-height:1.2}
+body.printing .print-copy .tl-date-range{font-size:7pt;color:#4b5568;font-weight:600;white-space:normal;line-height:1.15;margin-top:1px}
 body.printing .print-copy .phone-park{display:none!important}
 @media print{
   @page{size:A4 landscape;margin:8mm}
@@ -853,7 +865,7 @@ body.printing .print-copy .phone-park{display:none!important}
 </main>
 
 <script>
-const events=[{"id":"spv3","date":100,"label":"Virus archéen SPV3","img":"cartes/01_virus_arch_en_spv3.webp","sizeUm":0.08,"sizeLabel":"80 nm","micro":3,"hint":"Virus, plus petit qu’une bactérie : objet subcellulaire rond.","scaleHint":"Un virion rond mesure un peu moins que la barre de 100 nm."},{"id":"his1","date":100,"label":"Virus archéen His1","img":"cartes/02_virus_arch_en_his1.webp","sizeUm":0.15,"sizeLabel":"150 nm","micro":3,"hint":"Virus allongé, trop petit pour le microscope optique classique.","scaleHint":"Mesurer la longueur d’un virion fusiforme isolé, à gauche."},{"id":"t2","date":300,"label":"Bactériophage T2","img":"cartes/03_bact_riophage_t2.webp","sizeUm":0.22,"sizeLabel":"220 nm","micro":3,"hint":"Virus qui infecte une bactérie : tête et queue.","scaleHint":"Compter la tête et la queue, soit un peu plus de deux barres de 100 nm."},{"id":"tetv","date":300,"label":"Virus géant TetV","img":"cartes/04_virus_g_ant_tetv.webp","sizeUm":0.3,"sizeLabel":"300 nm","micro":3,"hint":"Très gros virus, encore plus petit qu’une cellule.","scaleHint":"Mesurer le virion dans la petite vignette, pas la grande cellule hôte."},{"id":"meningo","date":1000,"label":"Méningocoque","img":"cartes/05_m_ningocoque_et_pili.webp","sizeUm":0.8,"sizeLabel":"0,8 µm","micro":4,"hint":"Bactérie ronde, de l’ordre du micromètre.","scaleHint":"Le corps bleu est plus petit que la barre de 1 µm ; écarter les pili jaunes."},{"id":"nitrat","date":1000,"label":"Bactérie Nitratidesulfovibrio","img":"cartes/06_bact_rie_nitratidesulfovibrio.webp","sizeUm":1.7,"sizeLabel":"1,7 µm","micro":3,"hint":"Bactérie en bâtonnet, un peu plus grande qu’un micromètre.","scaleHint":"Le bacille sombre mesure environ 3 à 4 barres de 0,5 µm, sans son flagelle."},{"id":"pirsonia","date":3000,"label":"Parasite Pirsonia","img":"cartes/07_diatom_e_et_parasite_pirsonia.webp","sizeUm":2.7,"sizeLabel":"2,7 µm","micro":4,"hint":"Petit eucaryote parasite, plus gros qu’une bactérie typique.","scaleHint":"Mesurer l’objet rond au centre droit, pas la diatomée sur laquelle il se trouve."},{"id":"uabi","date":3000,"label":"Bactérie Uabimicrobium","img":"cartes/08_bact_rie_uabimicrobium.webp","sizeUm":3,"sizeLabel":"3 µm","micro":3,"hint":"Bactérie relativement grande, encore bien plus petite qu’une cellule humaine.","scaleHint":"Son corps cellulaire occupe environ trois barres de 1 µm."},{"id":"idioma","date":3000,"label":"Bactérie Idiomarina","img":"cartes/09_bact_rie_idiomarina.webp","sizeUm":3.5,"sizeLabel":"3,5 µm","micro":3,"hint":"Bactérie en bâtonnet, taille d’une petite cellule.","scaleHint":"Choisir un bacille du groupe central et ignorer les longs flagelles."},{"id":"chlorella","date":3000,"label":"Chlorella","img":"cartes/10_chlorella_et_bact_rie_parasite.webp","sizeUm":4,"sizeLabel":"4 µm","micro":4,"hint":"Petite algue unicellulaire verte.","scaleHint":"Mesurer une grosse cellule ronde ; la petite bactérie indiquée par la flèche est un autre objet."},{"id":"champignon","date":7000,"label":"Champignon sur un poil","img":"cartes/11_champignon_sur_un_poil_de_chauve_souris.webp","sizeUm":5,"sizeLabel":"5 µm","micro":4,"hint":"Filament de champignon, plus fin qu’une cellule animale.","scaleHint":"Choisir une seule structure fongique allongée, sans mesurer le poil entier."},{"id":"gr","date":7000,"label":"Globule rouge","img":"cartes/12_globules_rouges.webp","sizeUm":6,"sizeLabel":"6 µm","micro":3,"hint":"Cellule sanguine humaine, sans noyau.","scaleHint":"Mesurer sa plus grande dimension visible dans la coupe du capillaire."},{"id":"cocco","date":7000,"label":"Coccolithophore","img":"cartes/13_coccolithophore.webp","sizeUm":8,"sizeLabel":"8 µm","micro":1,"hint":"Algue unicellulaire marine, visible en microscopie optique.","scaleHint":"Une cellule rouge mesure un peu moins que la barre de 10 µm."},{"id":"cavinula","date":7000,"label":"Diatomée Cavinula","img":"cartes/14_diatom_e_cavinula.webp","sizeUm":9,"sizeLabel":"9 µm","micro":4,"hint":"Petite diatomée : algue à coque de silice.","scaleHint":"Le diamètre de sa valve ronde vaut environ 4 à 5 barres de 2 µm."},{"id":"fbalm","date":15000,"label":"Noyau de la carte fBALM","img":"cartes/15_adn_du_noyau__fbalm.webp","sizeUm":12,"sizeLabel":"12 µm","micro":2,"hint":"Noyau d’une cellule humaine : un organite de quelques dizaines de micromètres.","scaleHint":"Mesurer mentalement le noyau entier ; la barre de 500 nm concerne seulement les agrandissements."},{"id":"proto","date":15000,"label":"Amibe Protosporangium","img":"cartes/16_amibe_protosporangium.webp","sizeUm":17,"sizeLabel":"17 µm","micro":1,"hint":"Amibe, plus grande qu’un globule rouge.","scaleHint":"Sa longueur, projections comprises, représente environ 1,7 barre de 10 µm."},{"id":"phaeo","date":15000,"label":"Diatomée Phaeodactylum","img":"cartes/17_diatom_e_phaeodactylum.webp","sizeUm":18,"sizeLabel":"18 µm","micro":1,"hint":"Diatomée allongée, cellule d’algue unicellulaire.","scaleHint":"Choisir la cellule fusiforme du bas et mesurer sa longueur."},{"id":"anaera","date":30000,"label":"Amibe Anaeramoeba","img":"cartes/18_amibe_anaeramoeba.webp","sizeUm":25,"sizeLabel":"25 µm","micro":1,"hint":"Amibe visible en microscopie optique, grande cellule unicellulaire.","scaleHint":"Le corps visible sur l’image optique occupe environ 2,5 barres de 10 µm."},{"id":"pollen","date":30000,"label":"Grain de pollen","img":"cartes/19_grains_de_pollen.webp","sizeUm":35,"sizeLabel":"35 µm","micro":1,"hint":"Grain de pollen : cellule végétale visible à la loupe.","scaleHint":"Prendre le grain en haut à gauche : la planche montre plusieurs pollens de tailles différentes."},{"id":"quadru","date":60000,"label":"Amibe à thèque Quadrulella","img":"cartes/20_amibe___th_que.webp","sizeUm":50,"sizeLabel":"50 µm","micro":1,"hint":"Grande amibe protégée par une coque (thèque).","scaleHint":"Mesurer la thèque au centre : sa longueur est proche de la barre de 50 µm."},{"id":"buccale","date":60000,"label":"Cellule buccale","img":"cartes/21_cellule_buccale.webp","sizeUm":65,"sizeLabel":"65 µm","micro":1,"hint":"Cellule humaine de la bouche, visible en microscopie optique.","scaleHint":"Cellule rose isolée ; pas de barre sur cette photo. La valeur vient d’une étude morphométrique."},{"id":"diatdiv","date":60000,"label":"Diatomée de la planche « diversité »","img":"cartes/22_diatom_es___diversit.webp","sizeUm":70,"sizeLabel":"70 µm","micro":1,"hint":"Grande diatomée, cellule d’algue nettement plus large qu’un pollen moyen.","scaleHint":"Choisir uniquement la diatomée nº 28, en bas à droite, avec sa propre barre de 20 µm."},{"id":"oignon","date":150000,"label":"Cellule d’épiderme d’oignon rouge","img":"cartes/23_piderme_d_oignon_rouge.webp","sizeUm":120,"sizeLabel":"120 µm","micro":1,"hint":"Grande cellule végétale d’épiderme, visible à faible grossissement.","scaleHint":"Choisir une cellule centrale : sa longueur représente environ 60 % de la barre de 200 µm."},{"id":"nostoc","date":150000,"label":"Nostoc","img":"cartes/24_cyanobacterie_nostoc.webp","sizeUm":230,"sizeLabel":"230 µm","micro":1,"hint":"Colonie sphérique de cyanobactéries, visible à l’œil nu.","scaleHint":"On mesure ici la colonie sphérique entière, pas une cyanobactérie individuelle."}];
+const events=[{"id":"spv3","date":100,"label":"Virus archéen SPV3","img":"cartes/01_virus_arch_en_spv3.webp","sizeUm":0.08,"sizeLabel":"80 nm","micro":3,"hint":"Virus, plus petit qu’une bactérie : objet subcellulaire rond.","scaleHint":"Un virion rond mesure un peu moins que la barre de 100 nm."},{"id":"his1","date":100,"label":"Virus archéen His1","img":"cartes/02_virus_arch_en_his1.webp","sizeUm":0.15,"sizeLabel":"150 nm","micro":3,"hint":"Virus allongé, trop petit pour le microscope optique classique.","scaleHint":"Mesurer la longueur d’un virion fusiforme isolé, à gauche."},{"id":"t2","date":300,"label":"Bactériophage T2","img":"cartes/03_bact_riophage_t2.webp","sizeUm":0.22,"sizeLabel":"220 nm","micro":3,"hint":"Virus qui infecte une bactérie : tête et queue.","scaleHint":"Compter la tête et la queue, soit un peu plus de deux barres de 100 nm."},{"id":"tetv","date":300,"label":"Virus géant TetV","img":"cartes/04_virus_g_ant_tetv.webp","sizeUm":0.3,"sizeLabel":"300 nm","micro":3,"hint":"Très gros virus, encore plus petit qu’une cellule.","scaleHint":"Mesurer le virion dans la petite vignette, pas la grande cellule hôte."},{"id":"meningo","date":1000,"label":"Méningocoque","img":"cartes/05_m_ningocoque_et_pili.webp","sizeUm":0.8,"sizeLabel":"0,8 µm","micro":4,"hint":"Bactérie ronde, de l’ordre du micromètre.","scaleHint":"Le corps bleu est plus petit que la barre de 1 µm ; écarter les pili jaunes."},{"id":"cholera","date":1000,"label":"Bacille du choléra","img":"cartes/27_bacille_cholera.webp","sizeUm":1.5,"sizeLabel":"1,5 µm","micro":1,"mag":600,"hint":"Bactérie en bâtonnet légèrement courbé, de l’ordre du micromètre.","scaleHint":"Chaque bâtonnet rose mesure environ 1,5 à 2 µm de long ; à ×600 ils restent très petits dans le champ."},{"id":"nitrat","date":1000,"label":"Bactérie Nitratidesulfovibrio","img":"cartes/06_bact_rie_nitratidesulfovibrio.webp","sizeUm":1.7,"sizeLabel":"1,7 µm","micro":3,"hint":"Bactérie en bâtonnet, un peu plus grande qu’un micromètre.","scaleHint":"Le bacille sombre mesure environ 3 à 4 barres de 0,5 µm, sans son flagelle."},{"id":"pirsonia","date":3000,"label":"Parasite Pirsonia","img":"cartes/07_diatom_e_et_parasite_pirsonia.webp","sizeUm":2.7,"sizeLabel":"2,7 µm","micro":4,"hint":"Petit eucaryote parasite, plus gros qu’une bactérie typique.","scaleHint":"Mesurer l’objet rond au centre droit, pas la diatomée sur laquelle il se trouve."},{"id":"uabi","date":3000,"label":"Bactérie Uabimicrobium","img":"cartes/08_bact_rie_uabimicrobium.webp","sizeUm":3,"sizeLabel":"3 µm","micro":3,"hint":"Bactérie relativement grande, encore bien plus petite qu’une cellule humaine.","scaleHint":"Son corps cellulaire occupe environ trois barres de 1 µm."},{"id":"idioma","date":3000,"label":"Bactérie Idiomarina","img":"cartes/09_bact_rie_idiomarina.webp","sizeUm":3.5,"sizeLabel":"3,5 µm","micro":3,"hint":"Bactérie en bâtonnet, taille d’une petite cellule.","scaleHint":"Choisir un bacille du groupe central et ignorer les longs flagelles."},{"id":"chlorella","date":3000,"label":"Chlorella","img":"cartes/10_chlorella_et_bact_rie_parasite.webp","sizeUm":4,"sizeLabel":"4 µm","micro":4,"hint":"Petite algue unicellulaire verte.","scaleHint":"Mesurer une grosse cellule ronde ; la petite bactérie indiquée par la flèche est un autre objet."},{"id":"champignon","date":7000,"label":"Champignon sur un poil","img":"cartes/11_champignon_sur_un_poil_de_chauve_souris.webp","sizeUm":5,"sizeLabel":"5 µm","micro":4,"hint":"Filament de champignon, plus fin qu’une cellule animale.","scaleHint":"Choisir une seule structure fongique allongée, sans mesurer le poil entier."},{"id":"gr","date":7000,"label":"Globule rouge","img":"cartes/12_globules_rouges.webp","sizeUm":6,"sizeLabel":"6 µm","micro":3,"hint":"Cellule sanguine humaine, sans noyau.","scaleHint":"Mesurer sa plus grande dimension visible dans la coupe du capillaire."},{"id":"levure","date":7000,"label":"Levures","img":"cartes/26_levures.webp","sizeUm":6,"sizeLabel":"6 µm","micro":1,"mag":600,"hint":"Levure : champignon unicellulaire, de la taille d’un globule rouge.","scaleHint":"Mesurer une cellule ronde isolée, pas un amas ni un bourgeon en cours de division."},{"id":"cocco","date":7000,"label":"Coccolithophore","img":"cartes/13_coccolithophore.webp","sizeUm":8,"sizeLabel":"8 µm","micro":1,"hint":"Algue unicellulaire marine, visible en microscopie optique.","scaleHint":"Une cellule rouge mesure un peu moins que la barre de 10 µm."},{"id":"cavinula","date":7000,"label":"Diatomée Cavinula","img":"cartes/14_diatom_e_cavinula.webp","sizeUm":9,"sizeLabel":"9 µm","micro":4,"hint":"Petite diatomée : algue à coque de silice.","scaleHint":"Le diamètre de sa valve ronde vaut environ 4 à 5 barres de 2 µm."},{"id":"noyau","date":15000,"label":"Noyau cellulaire (3D-SIM)","img":"cartes/15_noyau_3dsim.webp","sizeUm":16,"sizeLabel":"16 µm","micro":2,"hint":"Noyau d’une cellule animale : organite d’une dizaine de micromètres, plus grand qu’une bactérie.","scaleHint":"Chaque noyau (enveloppe bleue, chromosomes rouges) mesure un peu plus de trois barres de 5 µm."},{"id":"diattem","date":15000,"label":"Diatomée Thalassiosira (MET)","img":"cartes/22_diatomee_tem.webp","sizeUm":12,"sizeLabel":"12 µm","micro":3,"hint":"Valve unique de diatomée vue en MET : algue unicellulaire à coque de silice.","scaleHint":"Le diamètre de la valve ronde vaut un peu plus de deux barres de 5 µm."},{"id":"proto","date":15000,"label":"Amibe Protosporangium","img":"cartes/16_amibe_protosporangium.webp","sizeUm":17,"sizeLabel":"17 µm","micro":1,"hint":"Amibe, plus grande qu’un globule rouge.","scaleHint":"Sa longueur, projections comprises, représente environ 1,7 barre de 10 µm."},{"id":"phaeo","date":15000,"label":"Diatomée Phaeodactylum","img":"cartes/17_diatom_e_phaeodactylum.webp","sizeUm":18,"sizeLabel":"18 µm","micro":1,"hint":"Diatomée allongée, cellule d’algue unicellulaire.","scaleHint":"Choisir la cellule fusiforme du bas et mesurer sa longueur."},{"id":"anaera","date":30000,"label":"Amibe Anaeramoeba","img":"cartes/18_amibe_anaeramoeba.webp","sizeUm":25,"sizeLabel":"25 µm","micro":1,"hint":"Amibe visible en microscopie optique, grande cellule unicellulaire.","scaleHint":"Le corps visible sur l’image optique occupe environ 2,5 barres de 10 µm."},{"id":"quadru","date":60000,"label":"Amibe à thèque Quadrulella","img":"cartes/20_amibe___th_que.webp","sizeUm":50,"sizeLabel":"50 µm","micro":1,"hint":"Grande amibe protégée par une coque (thèque).","scaleHint":"Mesurer la thèque au centre : sa longueur est proche de la barre de 50 µm."},{"id":"buccale","date":60000,"label":"Cellule buccale","img":"cartes/21_cellule_buccale.webp","sizeUm":65,"sizeLabel":"65 µm","micro":1,"hint":"Cellule humaine de la bouche, visible en microscopie optique.","scaleHint":"Cellule rose isolée ; pas de barre sur cette photo. La valeur vient d’une étude morphométrique."},{"id":"pollen","date":60000,"label":"Pollen de pin","img":"cartes/19_pollen_de_pin.webp","sizeUm":75,"sizeLabel":"75 µm","micro":1,"mag":400,"hint":"Pollen de pin : grande cellule végétale avec deux sacs aérifères.","scaleHint":"Mesurer un grain entier, ailes comprises ; à ×400 le champ optique fait environ 450 µm."},{"id":"ovocyte","date":150000,"label":"Ovocyte","img":"cartes/25_ovocytes.webp","sizeUm":110,"sizeLabel":"110 µm","micro":1,"mag":400,"hint":"Ovocyte humain : l’une des plus grandes cellules de l’organisme, au centre du follicule.","scaleHint":"Mesurer uniquement la grande cellule claire centrale, sans la couronne de cellules folliculaires."},{"id":"oignon","date":150000,"label":"Cellule d’épiderme d’oignon rouge","img":"cartes/23_piderme_d_oignon_rouge.webp","sizeUm":120,"sizeLabel":"120 µm","micro":1,"hint":"Grande cellule végétale d’épiderme, visible à faible grossissement.","scaleHint":"Choisir une cellule centrale : sa longueur représente environ 60 % de la barre de 200 µm."},{"id":"nostoc","date":150000,"label":"Colonie Nostoc","img":"cartes/24_colonie_nostoc.webp","sizeUm":300,"sizeLabel":"300 µm","micro":1,"mag":400,"hint":"Colonie de cyanobactéries : masse de filaments, beaucoup plus grande qu’une cellule isolée.","scaleHint":"On mesure la masse de filaments visible sur la photo, pas un seul maillon du chapelet."}];
 
 const BINS={
   100:{play:"virus",reveal:"80–150 nm"},
@@ -861,36 +873,61 @@ const BINS={
   1000:{play:"bactérie",reveal:"0,8–2 µm"},
   3000:{play:"petite cellule",reveal:"2–4 µm"},
   7000:{play:"cellule",reveal:"5–10 µm"},
-  15000:{play:"grosse cellule",reveal:"10–20 µm"},
-  30000:{play:"grande cellule",reveal:"20–40 µm"},
-  60000:{play:"très grande cellule",reveal:"40–80 µm"},
+  15000:{play:"grande cellule",reveal:"10–20 µm"},
+  30000:{play:"très grande cellule",reveal:"20–40 µm"},
+  60000:{play:"cellule géante",reveal:"40–80 µm"},
   150000:{play:"colonie / tissu",reveal:"> 100 µm"}
 };
 const MARK_SHORT={1:"MO",2:"HR",3:"MET",4:"MEB"};
 const MARK_FULL={1:"microscopie optique classique",2:"microscopie optique à haute résolution",3:"microscopie électronique à transmission",4:"microscopie électronique à balayage"};
 const MARK_CODES=["1","2","3","4"];
+function binPlay(d){
+  const b=BINS[d];
+  return b?b.play:String(d);
+}
+function binRange(d){
+  const b=BINS[d];
+  return b?b.reveal:"";
+}
 function binLabel(d,forceReveal){
   const b=BINS[d];
   if(!b) return String(d);
   return (forceReveal||document.body.classList.contains("corrected"))?b.reveal:b.play;
 }
+function dateColInner(d){
+  const range=binRange(d);
+  return `<div class="tl-date">${binPlay(d)}</div>${range?`<div class="tl-date-range">${range}</div>`:""}`;
+}
 function refreshAxisLabels(){
   datesEl.querySelectorAll(".tl-date-col:not(.phone-park)").forEach(col=>{
     const d=Number(col.dataset.date);
     const el=col.querySelector(".tl-date");
-    if(el) el.textContent=binLabel(d);
+    let rangeEl=col.querySelector(".tl-date-range");
+    if(el) el.textContent=binPlay(d);
+    const range=binRange(d);
+    if(range){
+      if(!rangeEl){
+        rangeEl=document.createElement("div");
+        rangeEl.className="tl-date-range";
+        col.appendChild(rangeEl);
+      }
+      rangeEl.textContent=range;
+    }
   });
+}
+function setCardTopLabel(card,text){
+  const el=card.querySelector(".card-top-label")||card.querySelector(".card-top");
+  if(el) el.textContent=text;
 }
 function revealCorrection(showKey){
   document.querySelectorAll(".drop-zone:not(#phone-park) .card").forEach(card=>{
     const ev=events.find(x=>x.id===card.dataset.id);
-    const top=card.querySelector(".card-top");
-    if(!top) return;
+    if(!card.querySelector(".card-top")) return;
     if(card.classList.contains("correct")&&ev){
-      top.textContent=ev.sizeLabel;
+      setCardTopLabel(card,ev.sizeLabel);
       card.classList.add("size-revealed");
     }else{
-      top.textContent="Carte";
+      setCardTopLabel(card,"Carte");
       card.classList.remove("size-revealed");
     }
   });
@@ -995,7 +1032,7 @@ const scoreEl=document.getElementById("score");
 const bankCount=document.getElementById("bank-count");
 const markerBank=document.getElementById("marker-bank");
 const markCount=document.getElementById("mark-count");
-const SAVE_KEY="sizeline-tara-v1";
+const SAVE_KEY="sizeline-tara-v2";
 let skipSave=false;
 let hintsFrise=0,hintsPrincipes=0;
 let undoStack=[];
@@ -1087,7 +1124,8 @@ function speakDate(dateStr){
     const ev=events.find(x=>x.id===c.dataset.id);
     return ev?String(ev.label).replace(/\s*[—–-]\s*/g,". "):"";
   }).filter(Boolean);
-  let text="Intervalle. "+labelDate(d)+".";
+  const range=binRange(d);
+  let text="Intervalle. "+binPlay(d)+(range?". "+range.replace(/–/g," à ").replace(/µm/g," micromètres").replace(/nm/g," nanomètres"):"")+".";
   if(labels.length) text+=" "+labels.length+" carte"+(labels.length>1?"s":"")+" ici. "+labels.join(". ");
   else text+=" Aucune carte à cet intervalle.";
   speakText(text);
@@ -1116,7 +1154,8 @@ function makeCard(e){
   el.className="card";
   el.draggable=true;
   el.dataset.id=e.id;
-  el.innerHTML=`<div class="card-top">Carte</div><div class="card-visual"><div class="card-photo"><img src="${e.img}" alt="${e.label}" draggable="false"><div class="card-scale-mask" aria-hidden="true"></div><div class="card-verso"><div class="card-size">${e.sizeLabel}</div><div class="card-bar">${e.scaleHint}</div></div></div><button class="card-hint-btn" type="button" aria-label="Indice de taille" title="Indice">?</button><button class="card-flip-btn" type="button" aria-label="Retourner la carte" title="Retourner">↻</button></div><div class="card-body"><div class="card-name">${shortLabel(e.label)}</div></div><button class="card-listen" type="button" aria-label="Écouter la description de la carte" title="Écouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8 8 0 0 1 0 12"/></svg></button>`;
+  const mag=e.mag?`<div class="card-mag-badge">×${e.mag}</div>`:"";
+  el.innerHTML=`<div class="card-top"><button class="card-flip-btn" type="button" aria-label="Retourner la carte" title="Retourner">↻</button><span class="card-top-label">Carte</span><button class="card-hint-btn" type="button" aria-label="Indice de taille" title="Indice">?</button></div><div class="card-visual"><div class="card-photo"><img src="${e.img}" alt="${e.label}" draggable="false"><div class="card-scale-mask" aria-hidden="true"></div><div class="card-verso"><div class="card-size">${e.sizeLabel}</div><div class="card-bar">${e.scaleHint}</div></div>${mag}</div></div><div class="card-body"><div class="card-name">${shortLabel(e.label)}</div></div><button class="card-listen" type="button" aria-label="Écouter la description de la carte" title="Écouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8 8 0 0 1 0 12"/></svg></button>`;
   el.querySelector(".card-hint-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();showSizeHint(ev.currentTarget,e);});
   el.querySelector(".card-flip-btn").addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();el.classList.toggle("flipped");});
   el.addEventListener("pointerdown",ev=>{
@@ -1235,7 +1274,7 @@ function drawAxis(){
     const dateCol=document.createElement("div");
     dateCol.className="tl-date-col";
     dateCol.dataset.date=String(d);
-    dateCol.innerHTML=`<div class="tl-date">${labelDate(d)}</div>`;
+    dateCol.innerHTML=dateColInner(d);
     datesEl.appendChild(dateCol);
   });
   wireDrops();
@@ -1298,9 +1337,8 @@ function restore(saved){
   });
   document.querySelectorAll(".drop-zone:not(#phone-park) .card.correct").forEach(card=>{
     const ev=events.find(x=>x.id===card.dataset.id);
-    const top=card.querySelector(".card-top");
-    if(ev&&top){
-      top.textContent=ev.sizeLabel;
+    if(ev&&card.querySelector(".card-top")){
+      setCardTopLabel(card,ev.sizeLabel);
       card.classList.add("size-revealed");
     }
   });
