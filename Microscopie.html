@@ -109,16 +109,16 @@ main{padding:12px 18px 8px;width:100%;max-width:none;flex:1;display:flex;flex-di
   text-transform:none;letter-spacing:0}
 .bank-count{background:var(--navy);color:#fff;border-radius:20px;
   padding:1px 8px;font-size:.7rem}
-#deck{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;
+#deck{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;min-height:60px;
   border-radius:8px;padding:8px;transition:background .2s;overflow:visible}
 #deck.drag-over{background:#e8f0fb;outline:2px dashed var(--navy2)}
 
 .card{
-  width:118px;border-radius:var(--radius);overflow:visible;cursor:grab;
+  width:118px;height:auto;align-self:flex-start;border-radius:var(--radius);overflow:visible;cursor:grab;
   transition:transform .2s ease,box-shadow .2s ease,outline .2s;user-select:none;
   -webkit-user-select:none;
   position:relative;flex-shrink:0;border:2px solid var(--navy);background:#fff;
-  transform-origin:center center
+  transform-origin:center center;display:flex;flex-direction:column
 }
 body.phone .card{touch-action:none;-webkit-touch-callout:none;-webkit-user-drag:none}
 .card img{user-select:none}
@@ -257,11 +257,11 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 .principle[data-n="4"] b{background:#7a2e6a}
 .principles{grid-template-columns:repeat(2,minmax(0,1fr))}
 .card{position:relative}
-.card-visual{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
+.card-visual{position:relative;flex:0 0 auto;min-height:0;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
 .card-photo{position:relative;display:block;width:100%;height:132px;overflow:hidden;line-height:0;background:#dfe6ef}
 .card-photo img,.card-visual img{
-  position:absolute;left:50%;top:51%;width:148%;height:158%;max-width:none;
-  transform:translate(-50%,-50%);object-fit:cover;object-position:center 46%
+  position:absolute;inset:0;width:100%;height:100%;max-width:none;
+  object-fit:cover;object-position:center 46%;transform:none
 }
 .card-scale-mask{
   position:absolute;inset:0;z-index:2;pointer-events:none;
@@ -293,11 +293,11 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 #hint-pop strong{display:block;color:#1a3566;font-size:.78rem;margin-bottom:4px}
 #hint-pop p{margin:0;font-size:.78rem;line-height:1.35;color:#334155}
 .tl-date{white-space:normal;line-height:1.15;font-size:.58rem}
-.drop-zone .card .card-visual{flex:1 1 auto;min-height:0;width:100%;overflow:hidden}
-.drop-zone .card .card-photo{height:100%;width:100%;min-height:0}
+.drop-zone .card .card-visual{flex:0 0 auto;min-height:0;width:100%;overflow:hidden}
+.drop-zone .card .card-photo{height:110px;width:100%;min-height:0;flex:0 0 110px}
 .drop-zone .card .card-photo img,.drop-zone .card .card-visual img{
-  position:absolute;left:50%;top:51%;width:148%;height:158%;max-width:none;
-  transform:translate(-50%,-50%);object-fit:cover;object-position:center 46%
+  position:absolute;inset:0;width:100%;height:100%;max-width:none;
+  object-fit:cover;object-position:center 46%;transform:none
 }
 .card-verso{font-family:'Inter',sans-serif}
 
@@ -344,7 +344,7 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 }
 .tl-col,.tl-slots{overflow:visible}
 .drop-zone.drag-over{background:#e8f0fb;border-color:var(--navy2)}
-.drop-zone .card{width:min(100%,118px);flex:1 1 0;min-height:0;max-height:100%;display:flex;flex-direction:column}
+.drop-zone .card{width:min(100%,118px);flex:0 1 auto;min-height:0;max-height:100%;height:auto;display:flex;flex-direction:column}
 .drop-zone .card-top{min-height:22px;flex:0 0 auto;padding:4px 4px;font-size:.55rem}
 .drop-zone .card-body{flex:0 0 auto}
 .drop-zone .card-name{font-size:.58rem;line-height:1.18}
@@ -457,7 +457,8 @@ body.phone .drop-zone{min-height:0;padding:0;gap:0;align-items:stretch;justify-c
 body.phone .drop-zone .card,body.phone #phone-park .card{
   width:100%!important;max-width:none!important;flex:1 1 auto;height:100%;margin:0
 }
-body.phone .drop-zone .card .card-photo,body.phone #phone-park .card .card-photo{height:100%}
+body.phone .drop-zone .card .card-visual,body.phone #phone-park .card .card-visual{flex:1 1 auto;height:100%}
+body.phone .drop-zone .card .card-photo,body.phone #phone-park .card .card-photo{height:100%;flex:1 1 auto}
 body.phone .drop-zone .card-top{display:none}
 body.phone #phone-park{outline:2px dashed var(--gold);background:#fff8e8}
 body.phone .drop-zone.phone-target:not(#phone-park){background:#e8f0fb;border-color:var(--navy2)}
@@ -531,7 +532,7 @@ body.game-play:not(.phone) .drop-zone:not(#phone-park) .card.game-ghost{
 }
 body.game-play:not(.phone) .drop-zone:not(#phone-park) .card .card-photo,
 body.game-play:not(.phone) .drop-zone:not(#phone-park) .card.game-ghost .card-photo{
-  height:120px
+  height:120px;flex:0 0 120px
 }
 body.game-play .drop-zone .card.game-p0,
 body.game-play .drop-zone .card.game-p1,
@@ -600,33 +601,33 @@ body.game-play .drop-zone .card.game-start{z-index:3}
   @page{size:A4 landscape;margin:8mm}
   html,body{background:#fff!important;height:auto}
   body.printing>*:not(.print-sheet){display:none!important}
-  .print-sheet{display:flex!important;flex-direction:column;justify-content:space-between;gap:6mm;height:100%;min-height:180mm}
-  .print-title{font-family:'Playfair Display',serif;font-size:16pt;color:#1a3566;text-align:center;
-    margin:0 0 3mm;font-weight:700;flex:0 0 auto;letter-spacing:.2px}
-  .print-copy{flex:1 1 0;border:1px dashed #9aa8bc;border-radius:8px;padding:5mm 7mm 4mm;overflow:hidden;page-break-inside:avoid}
-  .print-copy .tl-inner{width:100%}
-  .print-copy .drop-zone{min-height:28mm;border:1.5px dashed #c5cedb;background:#fafbfd;overflow:visible}
+  .print-sheet{display:flex!important;flex-direction:column;justify-content:space-between;gap:5mm;height:100%;min-height:180mm}
+  .print-title{font-family:'Playfair Display',serif;font-size:13pt;color:#1a3566;text-align:center;
+    margin:0 0 2.5mm;font-weight:700;flex:0 0 auto;letter-spacing:.2px}
+  .print-copy{flex:1 1 0;border:1px dashed #9aa8bc;border-radius:8px;padding:4mm 6mm 3mm;overflow:visible;page-break-inside:avoid;display:flex;flex-direction:column;min-height:0}
+  .print-copy .tl-inner{width:100%;flex:1 1 auto;min-height:0}
+  .print-copy .drop-zone{min-height:18mm;border:1.5px dashed #c5cedb;background:#fafbfd;overflow:visible;justify-content:flex-end}
   .print-copy .card{display:none!important}
   .print-copy .card.print-placed{
-    display:flex!important;flex-direction:column;width:min(100%,78px);max-height:32mm;
+    display:flex!important;flex-direction:column;width:min(100%,92px);max-height:none!important;height:auto;
     animation:none!important;box-shadow:none!important;outline:none!important;
-    background:#fff!important;border:1.6px solid #1d8a4a!important;overflow:hidden;
-    transform:none!important
+    background:#fff!important;border:1.6px solid #1d8a4a!important;overflow:visible;
+    transform:none!important;flex:0 0 auto
   }
-  .print-copy .card.print-placed .card-photo{height:16mm;overflow:hidden;position:relative}
-  .print-copy .card.print-placed .card-photo img{
-    position:absolute;left:50%;top:51%;width:148%;height:158%;max-width:none;max-height:none;
-    transform:translate(-50%,-50%);object-fit:cover;object-position:center 46%
+  .print-copy .card-visual,.print-copy .card-photo,.print-copy .card img{display:none!important}
+  .print-copy .card.print-placed .card-top{
+    min-height:0;font-size:7pt;padding:3px 4px;text-transform:none;line-height:1.25;
+    white-space:normal;overflow:visible;height:auto
   }
-  .print-copy .card.print-placed .card-top{min-height:12px;font-size:6.5pt;padding:2px;text-transform:none}
-  .print-copy .card.print-placed .card-name{font-size:6.5pt;line-height:1.2}
+  .print-copy .card.print-placed .card-body{padding:3px 4px 4px;overflow:visible}
+  .print-copy .card.print-placed .card-name{font-size:7pt;line-height:1.25;white-space:normal;overflow:visible;word-break:break-word}
   .print-copy .card-hint-btn,.print-copy .card-flip-btn,.print-copy .card-listen,
   .print-copy .card-scale-mask,.print-copy .card-verso{display:none!important}
   .print-copy .card-mark{
     position:absolute;top:-3mm;right:-2mm;width:7mm;height:7mm;font-size:7pt;
     cursor:default;print-color-adjust:exact;-webkit-print-color-adjust:exact
   }
-  .print-copy .tl-date{font-size:8pt;text-transform:none}
+  .print-copy .tl-date{font-size:8pt;text-transform:none;white-space:normal;overflow:visible;line-height:1.2}
   .print-copy .phone-park{display:none!important}
 }
 </style>
@@ -1968,10 +1969,6 @@ function printTimeline(){
   check();
   const sheet=document.getElementById("print-sheet")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"print-sheet",className:"print-sheet"}));
   sheet.innerHTML="";
-  const title=document.createElement("h1");
-  title.className="print-title";
-  title.textContent="Size Line — échelle de tailles et types de microscopie";
-  sheet.appendChild(title);
   const inner=document.querySelector(".tl-inner");
   if(!inner) return;
   const placedOk=document.querySelectorAll(".drop-zone:not(#phone-park) .card.correct").length;
@@ -1980,15 +1977,20 @@ function printTimeline(){
     msg.classList.add("show");
     return;
   }
+  const titleText="Size Line — échelle de tailles et types de microscopie";
   for(let i=0;i<2;i++){
     const copy=document.createElement("section");
     copy.className="print-copy";
+    const heading=document.createElement("h1");
+    heading.className="print-title";
+    heading.textContent=titleText;
+    copy.appendChild(heading);
     const clone=inner.cloneNode(true);
     clone.querySelectorAll(".card").forEach(c=>{
       if(!c.classList.contains("correct")){c.remove();return;}
       c.classList.add("print-placed");
       c.classList.remove("markable","unmarkable","mark-ok","mark-bad","wrong","placed","dragging","zoomed","hint-open","flipped");
-      c.querySelectorAll(".card-hint-btn,.card-flip-btn,.card-listen,.card-scale-mask,.card-verso").forEach(el=>el.remove());
+      c.querySelectorAll(".card-hint-btn,.card-flip-btn,.card-listen,.card-scale-mask,.card-verso,img,.card-visual").forEach(el=>el.remove());
     });
     copy.appendChild(clone);
     sheet.appendChild(copy);
