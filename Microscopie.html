@@ -516,8 +516,7 @@ body.phone .activity-bar{margin:0 6px 6px;padding:8px;gap:6px}
 body.phone .activity-bar .train-link{flex:1 1 140px;min-height:36px;padding:7px 10px;white-space:normal}
 body.phone .hint-count,body.phone .score{padding:6px 9px;font-size:.7rem;margin-left:0}
 .print-copy .phone-park{display:none!important}
-@media (orientation:portrait) and (pointer:coarse),
-       (orientation:portrait) and (max-width:1180px){
+@media (orientation:portrait) and (pointer:coarse) and (hover:none){
   .rotate-tip{display:flex}
   header,main{visibility:hidden}
 }
@@ -915,11 +914,11 @@ const BINS={
   100:{play:"virus",reveal:"80–150 nm"},
   300:{play:"gros virus",reveal:"200–300 nm"},
   1000:{play:"bactérie",reveal:"0,8–2 µm"},
-  3000:{play:"petite cellule",reveal:"2–4 µm"},
-  7000:{play:"cellule",reveal:"5–10 µm"},
-  15000:{play:"grande cellule",reveal:"10–20 µm"},
-  30000:{play:"très grande cellule",reveal:"20–40 µm"},
-  60000:{play:"cellule géante",reveal:"40–80 µm"},
+  3000:{play:"Très petites cellules",reveal:"2–4 µm"},
+  7000:{play:"Petites cellules",reveal:"5–10 µm"},
+  15000:{play:"Cellules moyennes",reveal:"10–20 µm"},
+  30000:{play:"Grandes cellules",reveal:"20–40 µm"},
+  60000:{play:"Très grandes cellules",reveal:"40–80 µm"},
   150000:{play:"colonie / tissu",reveal:"> 100 µm"}
 };
 const MARK_SHORT={1:"MO",2:"HR",3:"MET",4:"MEB"};
@@ -1661,9 +1660,10 @@ function redoMove(){
 }
 function syncPhone(){
   const coarse=window.matchMedia("(pointer:coarse)").matches;
+  const fine=window.matchMedia("(pointer:fine)").matches;
   const touch=navigator.maxTouchPoints>1;
   const short=Math.min(window.innerWidth,window.innerHeight);
-  const phone=coarse||(touch&&short<=1024)||window.innerWidth<900;
+  const phone=!fine&&(coarse||(touch&&short<=1024));
   document.body.classList.toggle("phone",phone);
   if(phone) updatePhoneDeck();
   else{
@@ -1679,22 +1679,13 @@ function fitBankHeight(){
     deck.style.removeProperty("--bank-max");
     return;
   }
-  const wrap=document.querySelector(".bank-wrap");
-  const header=document.querySelector("header");
-  const acts=document.querySelector("main > .activity-bar");
-  const controls=document.querySelector("main > .controls");
-  const label=wrap?wrap.querySelector(".bank-label"):null;
-  const used=(header?header.offsetHeight:0)+(acts?acts.offsetHeight:0)+(label?label.offsetHeight:0)+(controls?controls.offsetHeight:0)+56;
-  const scaleMin=Math.max(260,Math.round(window.innerHeight*0.34));
-  const budget=Math.max(96,window.innerHeight-used-scaleMin);
   const card=deck.querySelector(".card");
   const row=card?Math.max(card.offsetHeight,120):180;
   const gap=8, pad=16;
-  const fitRows=Math.max(1,Math.min(2,Math.floor((budget-pad+gap)/(row+gap))||1));
-  const max=fitRows*row+(fitRows-1)*gap+pad;
-  const need=deck.scrollHeight>max+8;
+  const two=2*row+gap+pad;
+  const need=deck.scrollHeight>two+8;
   deck.classList.toggle("bank-scroll",need);
-  if(need) deck.style.setProperty("--bank-max",max+"px");
+  if(need) deck.style.setProperty("--bank-max",two+"px");
   else deck.style.removeProperty("--bank-max");
   deck.querySelectorAll("img").forEach(img=>{if(!img.complete) img.addEventListener("load",scheduleFitBank,{once:true});});
 }
