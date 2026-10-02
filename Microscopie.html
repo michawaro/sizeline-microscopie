@@ -66,14 +66,25 @@ header p{font-size:.8rem;opacity:.75;margin-top:3px}
   box-shadow:0 10px 24px rgba(21,49,61,.22);opacity:0;pointer-events:none;transform:translateX(4px);
   transition:opacity .12s ease,transform .12s ease}
 .yt-dock-bell:hover::after,.yt-dock-bell:focus::after,.yt-dock-bell:focus-visible::after,.yt-dock-bell.is-tip::after{opacity:1;transform:translateX(0)}
+.yt-dock{margin-left:auto}
+.activity-bar{
+  display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;
+  margin:0 0 12px;padding:12px;
+  background:#fff;border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+  border:2px solid var(--gold)
+}
+.activity-bar .train-link{flex:1 1 210px;justify-content:center;text-align:center;min-height:44px}
 .train-link{
-  margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+  display:inline-flex;align-items:center;gap:8px;
   background:linear-gradient(180deg,#fff3cc 0%,#f0c14a 55%,#e0a020 100%);
   color:#5a3208;text-decoration:none;font-weight:800;font-size:.82rem;
-  padding:8px 16px 8px 12px;border-radius:999px;letter-spacing:.02em;
+  padding:10px 16px 10px 12px;border-radius:999px;letter-spacing:.02em;
   border:1px solid rgba(255,255,255,.55);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 0 #b47812,0 8px 18px rgba(0,0,0,.22);
-  transition:transform .15s,box-shadow .15s
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 0 #b47812,0 8px 18px rgba(0,0,0,.18);
+  transition:transform .15s,box-shadow .15s;
+  cursor:pointer;font-family:inherit;appearance:none;-webkit-appearance:none;
+  line-height:1.25
 }
 .train-link svg{width:18px;height:18px;flex-shrink:0}
 .train-link:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 3px 0 #b47812,0 10px 20px rgba(0,0,0,.28)}
@@ -100,17 +111,20 @@ main{padding:12px 18px 8px;width:100%;max-width:none;flex:1;display:flex;flex-di
 .tip strong{color:var(--navy)}
 
 .bank-wrap{background:#fff;border-radius:12px;padding:12px 16px 10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;overflow:visible}
+  box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:12px;overflow:visible;
+  flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
 .bank-label{font-size:.78rem;font-weight:600;color:var(--navy);
   text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:0 0 auto}
 .bank-title{display:inline-flex;align-items:center;gap:8px}
 .bank-stats{display:flex;align-items:center;gap:8px;margin-left:auto;
   text-transform:none;letter-spacing:0}
 .bank-count{background:var(--navy);color:#fff;border-radius:20px;
   padding:1px 8px;font-size:.7rem}
 #deck{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;min-height:60px;
-  border-radius:8px;padding:8px;transition:background .2s;overflow:visible}
+  border-radius:8px;padding:8px;transition:background .2s;overflow:visible;min-width:0}
+#deck.bank-scroll{max-height:var(--bank-max,42vh);overflow-x:hidden;overflow-y:auto;
+  overscroll-behavior:contain;scrollbar-gutter:stable}
 #deck.drag-over{background:#e8f0fb;outline:2px dashed var(--navy2)}
 
 .card{
@@ -336,7 +350,7 @@ body.activity-on .card.markable,.activity-clone.markable{cursor:copy}
 
 .tl-wrap{background:#fff;border-radius:12px;padding:12px 10px 8px;
   box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px;overflow:visible;
-  flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+  flex:1 1 0;display:flex;flex-direction:column;min-height:260px;position:relative}
 .tl-label{font-size:.78rem;font-weight:600;color:var(--navy);
   text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;
   display:flex;align-items:center;gap:6px}
@@ -476,8 +490,8 @@ body.phone .tl-date-col{cursor:pointer;padding:4px 0 2px}
 body.phone .phone-park .tl-date{color:var(--gold)}
 body.phone .controls{gap:6px;padding:0 6px}
 body.phone .controls .btn{padding:6px 9px;font-size:.7rem}
-body.phone #openActivity{padding:7px 11px;font-size:.72rem;gap:5px;font-weight:800}
-body.phone #openActivity svg{width:14px;height:14px}
+body.phone .activity-bar{margin:0 6px 6px;padding:8px;gap:6px}
+body.phone .activity-bar .train-link{flex:1 1 140px;min-height:36px;padding:7px 10px;white-space:normal}
 body.phone .hint-count,body.phone .score{padding:6px 9px;font-size:.7rem;margin-left:0}
 .print-copy .phone-park{display:none!important}
 @media (orientation:portrait) and (pointer:coarse),
@@ -496,7 +510,7 @@ body.game-play .game-turn{display:inline-flex}
 .game-turn.miss{background:#fdecea;border-color:#d44;color:#9b1c1c}
 .game-turn.ready{background:#e8f8ee;border-color:#6bc48a;color:#166534}
 header .game-turn.ready{color:#ecfdf3;background:rgba(143,212,168,.3);border-color:#8fd4a8}
-body.game-play .tip,body.game-play #check,body.game-play #shuffle,body.game-play #hint,body.game-play #reset,body.game-play #printTl,body.game-play #openActivity,body.game-play #openGame,body.game-play .score,body.game-play .hint-count,body.game-play .phone-hint{display:none!important}
+body.game-play .tip,body.game-play #check,body.game-play #shuffle,body.game-play #hint,body.game-play #reset,body.game-play #printTl,body.game-play .activity-bar,body.game-play #openGame,body.game-play .score,body.game-play .hint-count,body.game-play .phone-hint{display:none!important}
 body.game-play:not(.phone) #toggleBank{display:none!important}
 body.phone.game-play:not(.phone-all) .bank-wrap{display:none!important}
 body.phone.game-play.phone-all .bank-wrap{display:block!important}
@@ -773,10 +787,6 @@ body.printing .print-copy .phone-park{display:none!important}
     </div>
     <p>Classe les objets du plus petit au plus grand, par intervalles</p>
   </div>
-  <a class="train-link" href="https://view.genially.com/64ec4a8ef1e59f00197a32e3" target="_blank" rel="noopener noreferrer" title="S'entraîner sur Genially">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5V8.5z"/></svg>
-    S’entraîner
-  </a>
   <nav class="yt-dock" aria-label="Chaîne YouTube Michawaro">
     <a class="yt-dock-bell" id="ytBell" href="https://www.youtube.com/@michawaro?sub_confirmation=1" target="_blank" rel="noopener noreferrer" data-tip="Le saviez-vous ? Cliquez sur la cloche YouTube, puis choisissez « Toutes », pour ne pas passer à côté du prochain logiciel." aria-label="Le saviez-vous ? Cliquez sur la cloche YouTube, puis choisissez Toutes, pour ne pas passer à côté du prochain logiciel.">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22a2.3 2.3 0 0 0 2.25-2.2h-4.5A2.3 2.3 0 0 0 12 22zm7-6.2V11a7 7 0 0 0-5.2-6.75V3.6a1.8 1.8 0 1 0-3.6 0v.65A7 7 0 0 0 5 11v4.8L3.2 17.6v1.15h17.6V17.6L19 15.8z"/></svg>
@@ -797,12 +807,27 @@ body.printing .print-copy .phone-park{display:none!important}
 <div class="rotate-tip" id="rotate-tip">Tourne ton téléphone ou ta tablette <strong>en paysage</strong> pour voir la frise et placer les cartes.</div>
 <main>
   <div class="tip">
-    <strong>Comment jouer :</strong> Place chaque carte sur l’échelle, du plus petit au plus grand. Les objets d’un même intervalle sont considérés comme égaux : pas besoin d’un classement au nanomètre près. Les tailles précises et les barres d’échelle restent masquées jusqu’à la correction ou au retournement de la carte. Le <strong>?</strong> donne un repère biologique (virus, bactérie, cellule…). Ensuite, clique sur <strong>Identifie le type de microscopie</strong>.
+    <strong>Comment jouer :</strong> Place chaque carte sur l’échelle, du plus petit au plus grand. Les objets d’un même intervalle sont considérés comme égaux : pas besoin d’un classement au nanomètre près. Les tailles précises et les barres d’échelle restent masquées jusqu’à la correction ou au retournement de la carte. Le <strong>?</strong> donne un repère biologique (virus, bactérie, cellule…). Les trois activités sont les boutons dorés ci-dessous. Ensuite, ouvre l’<strong>Activité 3 = Quel type de microscopie ?</strong>.
   </div>
 
-  <div class="bank-wrap">
+  <nav class="activity-bar" aria-label="Les trois activités">
+    <button type="button" class="train-link" id="goActivity1" title="Aller aux cartes à placer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="9" rx="1.5"/><rect x="14" y="4" width="7" height="9" rx="1.5"/><rect x="8.5" y="15" width="7" height="5" rx="1.2"/></svg>
+      Activité 1 = Cartes à placer
+    </button>
+    <a class="train-link" href="https://view.genially.com/64ec4a8ef1e59f00197a32e3" target="_blank" rel="noopener noreferrer" title="S'entraîner sur Genially">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5V8.5z"/></svg>
+      Activité 2 = S’entraîner
+    </a>
+    <button type="button" class="train-link" id="openActivity" title="Identifier le type de microscopie">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v4"/><circle cx="9" cy="11" r="4"/><path d="M9 15v4h8M5 21h8"/><path d="m14 8 5 4"/></svg>
+      Activité 3 = Quel type de microscopie ?
+    </button>
+  </nav>
+
+  <div class="bank-wrap" id="bank-wrap">
     <div class="bank-label">
-      <span class="bank-title">Cartes à placer <span class="bank-count" id="bank-count">0</span></span>
+      <span class="bank-title">Cartes <span class="bank-count" id="bank-count">0</span></span>
       <div class="bank-stats">
         <div class="hint-count" id="hintCount">Indices : 0 (échelle 0 · microscopes 0)</div>
         <div class="score" id="score">0 / 0</div>
@@ -854,10 +879,6 @@ body.printing .print-copy .phone-park{display:none!important}
     <button class="btn btn-secondary" id="reset">Recommencer</button>
     <button class="btn btn-secondary" id="printTl" type="button">Imprimer mes réponses</button>
     <button class="btn btn-secondary btn-audio" id="audioDesc" type="button" aria-pressed="false" title="Activer la description audio des cartes">Description audio</button>
-    <button class="btn btn-activity" id="openActivity" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v4"/><circle cx="9" cy="11" r="4"/><path d="M9 15v4h8M5 21h8"/><path d="m14 8 5 4"/></svg>
-      Identifie le type de microscopie
-    </button>
     <button class="btn btn-primary" id="openGame" type="button">Mode jeu</button>
   </div>
   <p class="message" id="msg"></p>
@@ -1007,6 +1028,7 @@ document.addEventListener("pointerleave",ev=>{
   card.style.removeProperty("--zs");
 },true);
 window.addEventListener("resize",()=>{
+  scheduleFitBank();
   document.querySelectorAll(".card:hover,.card.hint-open").forEach(keepZoomInView);
 });
 document.addEventListener("click",ev=>{
@@ -1588,10 +1610,40 @@ function syncPhone(){
     updateToggleBank();
   }
 }
+function fitBankHeight(){
+  if(!deck) return;
+  if(document.body.classList.contains("phone")||document.body.classList.contains("printing")||document.body.classList.contains("game-play")){
+    deck.classList.remove("bank-scroll");
+    deck.style.removeProperty("--bank-max");
+    return;
+  }
+  const wrap=document.querySelector(".bank-wrap");
+  const header=document.querySelector("header");
+  const tip=document.querySelector("main > .tip");
+  const controls=document.querySelector("main > .controls");
+  const label=wrap?wrap.querySelector(".bank-label"):null;
+  const used=(header?header.offsetHeight:0)+(tip?tip.offsetHeight:0)+(label?label.offsetHeight:0)+(controls?controls.offsetHeight:0)+56;
+  const scaleMin=Math.max(260,Math.round(window.innerHeight*0.34));
+  const budget=Math.max(96,window.innerHeight-used-scaleMin);
+  const card=deck.querySelector(".card");
+  const row=card?Math.max(card.offsetHeight,120):180;
+  const gap=8, pad=16;
+  const fitRows=Math.max(1,Math.min(2,Math.floor((budget-pad+gap)/(row+gap))||1));
+  const max=fitRows*row+(fitRows-1)*gap+pad;
+  const need=deck.scrollHeight>max+8;
+  deck.classList.toggle("bank-scroll",need);
+  if(need) deck.style.setProperty("--bank-max",max+"px");
+  else deck.style.removeProperty("--bank-max");
+  deck.querySelectorAll("img").forEach(img=>{if(!img.complete) img.addEventListener("load",scheduleFitBank,{once:true});});
+}
+function scheduleFitBank(){
+  requestAnimationFrame(fitBankHeight);
+}
 function updateScore(){
   const placed=document.querySelectorAll(".drop-zone:not(#phone-park) .card").length;
   scoreEl.textContent=`${placed} / ${events.length}`;
   bankCount.textContent=String(events.length-placed);
+  scheduleFitBank();
 }
 function makeMarkChip(n){
   const chip=document.createElement("div");
@@ -1838,6 +1890,10 @@ document.getElementById("check").onclick=check;
 document.getElementById("checkMarks").onclick=checkMarks;
 document.getElementById("hintMarks").onclick=hintMarks;
 document.getElementById("openActivity").onclick=openActivity;
+document.getElementById("goActivity1").onclick=()=>{
+  const el=document.getElementById("bank-wrap");
+  if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+};
 document.getElementById("closeActivity").onclick=closeActivity;
 document.getElementById("activity-modal").addEventListener("click",e=>{
   if(e.target.id==="activity-modal") closeActivity();
