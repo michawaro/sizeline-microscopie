@@ -42,8 +42,8 @@ header p{font-size:.8rem;opacity:.75;margin-top:3px}
 .how-to{
   justify-self:center;text-align:center;white-space:nowrap;min-width:0;max-width:100%;
   background:linear-gradient(180deg,#d9f4ff 0%,#5aa8e8 55%,#2b7bc4 100%);
-  color:#0a3a66;font-size:clamp(.5rem,.92vw,.68rem);font-weight:650;line-height:1.25;
-  padding:4px 8px;border-radius:12px;letter-spacing:0;overflow:visible;
+  color:#0a3a66;font-size:clamp(.72rem,1.2vw,.92rem);font-weight:700;line-height:1.3;
+  padding:7px 14px;border-radius:12px;letter-spacing:0;overflow:visible;
   border:1px solid rgba(255,255,255,.55);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 0 #1c5f9a,0 8px 18px rgba(0,0,0,.18)
 }
@@ -813,7 +813,7 @@ body.printing .print-copy .phone-park{display:none!important}
     </div>
   </div>
   </div>
-  <div class="how-to">Place les cartes du plus petit au plus grand. Un même intervalle compte pour égal. Le ? donne un indice, ↻ révèle la taille.</div>
+  <div class="how-to">Place les cartes du plus petit au plus grand. Un même intervalle compte pour égal. Le ? donne un indice et précise la source de chaque image, ↻ révèle la taille.</div>
   <div class="header-right">
   <nav class="yt-dock" aria-label="Chaîne YouTube Michawaro">
     <a class="yt-dock-bell" id="ytBell" href="https://www.youtube.com/@michawaro?sub_confirmation=1" target="_blank" rel="noopener noreferrer" data-tip="Le saviez-vous ? Cliquez sur la cloche YouTube, puis choisissez « Toutes », pour ne pas passer à côté du prochain logiciel." aria-label="Le saviez-vous ? Cliquez sur la cloche YouTube, puis choisissez Toutes, pour ne pas passer à côté du prochain logiciel.">
@@ -917,12 +917,12 @@ const BINS={
   100:{play:"virus",reveal:"80–150 nm"},
   300:{play:"gros virus",reveal:"200–300 nm"},
   1000:{play:"bactérie",reveal:"0,8–2 µm"},
-  3000:{play:"Très petites cellules",reveal:"2–4 µm"},
-  7000:{play:"Petites cellules",reveal:"5–10 µm"},
-  15000:{play:"Cellules moyennes",reveal:"10–20 µm"},
-  30000:{play:"Grandes cellules",reveal:"20–40 µm"},
-  60000:{play:"Très grandes cellules",reveal:"40–80 µm"},
-  150000:{play:"colonie / tissu",reveal:"> 100 µm"}
+  3000:{play:"Cellules minuscules",reveal:"2–4 µm"},
+  7000:{play:"Très petites cellules",reveal:"5–10 µm"},
+  15000:{play:"Petites cellules",reveal:"10–20 µm"},
+  30000:{play:"Cellules moyennes",reveal:"20–40 µm"},
+  60000:{play:"Grandes cellules",reveal:"40–80 µm"},
+  150000:{play:"Très grandes cellules / tissus / colonies",reveal:"> 100 µm"}
 };
 const MARK_SHORT={1:"MO",2:"HR",3:"MET",4:"MEB"};
 const MARK_FULL={1:"microscopie optique classique",2:"microscopie optique à haute résolution",3:"microscopie électronique à transmission",4:"microscopie électronique à balayage"};
